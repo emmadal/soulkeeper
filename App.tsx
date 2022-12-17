@@ -1,4 +1,9 @@
-import React, {type PropsWithChildren, useEffect} from 'react';
+import React, {
+  type PropsWithChildren,
+  useEffect,
+  useMemo,
+  useReducer,
+} from 'react';
 import SplashScreen from 'react-native-splash-screen';
 import {
   SafeAreaView,
@@ -9,7 +14,7 @@ import {
   useColorScheme,
   View,
 } from 'react-native';
-
+import * as keyChain from 'react-native-keychain';
 import {
   Colors,
   DebugInstructions,
@@ -19,6 +24,10 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 import {Provider} from 'react-native-paper';
 import theme from './src/themes';
+import reducer, {ActionKind} from './src/reducer';
+import {initialState} from './src/state';
+import {Entreprise} from './src/types';
+import {AuthContext} from './src/context/AuthContext';
 
 const Section: React.FC<
   PropsWithChildren<{
@@ -52,6 +61,34 @@ const Section: React.FC<
 
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const authContext = useMemo(
+    () => ({
+      state,
+      dispatch: {
+        /**
+         * dispatch an action to get user
+         */
+        getUser: (user: Entreprise) => {
+          dispatch({
+            type: ActionKind.FETCH_DETAILS,
+            payload: user,
+          });
+        },
+        /**
+         * dispatch an action to sign out user
+         */
+        signOut: async () => {
+          try {
+            await keyChain.resetGenericPassword();
+            dispatch({type: ActionKind.SIGN_OUT});
+          } catch (error) {}
+        },
+      },
+    }),
+    [state],
+  );
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
@@ -72,30 +109,32 @@ const App = () => {
           barStyle={isDarkMode ? 'light-content' : 'dark-content'}
           backgroundColor={backgroundStyle.backgroundColor}
         />
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={backgroundStyle}>
-          <Header />
-          <View
-            style={{
-              backgroundColor: isDarkMode ? Colors.black : Colors.white,
-            }}>
-            <Section title="Step One">
-              Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-              screen and then come back to see your edits.
-            </Section>
-            <Section title="See Your Changes">
-              <ReloadInstructions />
-            </Section>
-            <Section title="Debug">
-              <DebugInstructions />
-            </Section>
-            <Section title="Learn More">
-              Read the docs to discover what to do next:
-            </Section>
-            <LearnMoreLinks />
-          </View>
-        </ScrollView>
+        <AuthContext.Provider value={authContext}>
+          <ScrollView
+            contentInsetAdjustmentBehavior="automatic"
+            style={backgroundStyle}>
+            <Header />
+            <View
+              style={{
+                backgroundColor: isDarkMode ? Colors.black : Colors.white,
+              }}>
+              <Section title="Step One">
+                Edit <Text style={styles.highlight}>App.tsx</Text> to change
+                this screen and then come back to see your edits.
+              </Section>
+              <Section title="See Your Changes">
+                <ReloadInstructions />
+              </Section>
+              <Section title="Debug">
+                <DebugInstructions />
+              </Section>
+              <Section title="Learn More">
+                Read the docs to discover what to do next:
+              </Section>
+              <LearnMoreLinks />
+            </View>
+          </ScrollView>
+        </AuthContext.Provider>
       </SafeAreaView>
     </Provider>
   );

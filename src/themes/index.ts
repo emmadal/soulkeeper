@@ -5,6 +5,7 @@ const theme = {
   ...DefaultTheme,
   ...NavigationDefaultTheme,
   myOwnProperty: true,
+  roundness: 1,
   colors: {
     ...DefaultTheme.colors,
     primary: '#0752B6',

@@ -3,16 +3,15 @@ import {
   View,
   StyleSheet,
   Dimensions,
-  TouchableOpacity,
   Alert,
   Platform,
+  Image,
 } from 'react-native';
 import {Formik} from 'formik';
 import * as yup from 'yup';
 import {Text, useTheme, Button, TextInput} from 'react-native-paper';
-import {useNavigation} from '@react-navigation/native';
 import * as keyChain from 'react-native-keychain';
-import {getProfile, login, getCompanyById} from '../api';
+import {loginUser} from '../api';
 import theme from '../themes';
 import {AuthContext} from '../context/AuthContext';
 
@@ -20,42 +19,23 @@ const Login = () => {
   const [isView, setIsView] = useState(true);
   const [loading, setLoading] = useState(false);
   const {colors} = useTheme();
-  const navigation = useNavigation();
   const {dispatch} = useContext(AuthContext);
 
   const handleViewPassword = () => setIsView(!isView);
 
   const handleSignin = async (values: any) => {
-    setLoading(!loading);
-    await keyChain.setGenericPassword(values.username, values.password);
-    const req = await login(values.username, values.password);
-    const {appToken, ...user} = req;
-
-    if (appToken) {
-      // Get user profile
-      const res = await getProfile(appToken, req.id);
-
-      // if user don't have any profile yet, redirect to profile screen creation
-      if (!res) {
-        setLoading(false);
-        navigation.navigate('CreateProfile', {req});
-      }
-
-      // update global state while dispatch action
-      if (res) {
+    try {
+      setLoading(!loading);
+      await keyChain.setGenericPassword(values.login, values.password);
+      const user = await loginUser(values.username, values.password);
+      if (user) {
+        // update global state while dispatch action
         dispatch?.getUser(user);
         setLoading(false);
-        if (user?.role === 'brand' || user?.type === 'brand') {
-          const company = await getCompanyById(appToken, res?.companyId);
-          dispatch?.updateCompany(company);
-          dispatch?.updateProfile({appToken: appToken, ...res});
-        } else {
-          dispatch?.updateProfile({appToken: appToken, ...res});
-        }
       }
-    } else {
+    } catch (error: any) {
       setLoading(false);
-      Alert.alert(req);
+      Alert.alert(error);
     }
   };
 
@@ -63,23 +43,24 @@ const Login = () => {
     <View style={styles.container}>
       <View style={styles.welcomeView}>
         <Text variant="titleLarge" style={styles.welcome}>
-          Welcome back.
+          Bienvienue sur SOUL KEEPER.
         </Text>
-        <Text variant="titleLarge" style={styles.welcome}>
-          Glad to see you again!
+        <Text style={styles.welcomeSub} variant="titleMedium">
+          L'application de suivi d'âmes!
         </Text>
-        <Text variant="bodyLarge" style={styles.welcomeSub}>
-          Let's go sign in.
-        </Text>
+        <Image
+          style={styles.img}
+          source={require('../assets/image/logo.png')}
+        />
       </View>
       <Formik
         initialValues={{
-          username: '',
+          login: '',
           password: '',
         }}
         validationSchema={yup.object().shape({
-          username: yup.string().required('Please enter a valid username'),
-          password: yup.string().required('Password required'),
+          login: yup.string().required('Entrez votre login'),
+          password: yup.string().required('Mot de passe requis'),
         })}
         onSubmit={values => handleSignin(values)}>
         {({
@@ -92,23 +73,23 @@ const Login = () => {
         }) => (
           <View style={styles.formView}>
             <Text variant="titleLarge" style={styles.appTitle}>
-              Login
+              Se connecter
             </Text>
             <View style={styles.input}>
               <TextInput
                 mode="outlined"
-                label="Username"
-                placeholder="username"
+                label="Nom d'utilisateur"
+                placeholder="Nom d'utilisateur"
                 placeholderTextColor={colors.grey100}
                 autoCapitalize="none"
-                value={values.username}
-                onChangeText={handleChange('username')}
-                onBlur={handleBlur('username')}
+                value={values.login}
+                onChangeText={handleChange('login')}
+                onBlur={handleBlur('login')}
                 right={<TextInput.Icon icon="user" />}
               />
-              {errors.username && touched.username && (
+              {errors.login && touched.login && (
                 <Text style={[styles.error, {color: colors.error}]}>
-                  {errors.username}
+                  {errors.login}
                 </Text>
               )}
             </View>
@@ -119,12 +100,12 @@ const Login = () => {
                 placeholderTextColor={colors.grey100}
                 autoCapitalize="none"
                 value={values.password}
-                label="Password"
+                label="Mot de passe"
                 onChangeText={handleChange('password')}
                 onBlur={handleBlur('password')}
                 right={
                   <TextInput.Icon
-                    icon={isView ? 'eye-slash' : 'eye'}
+                    icon={isView ? 'eye-off' : 'eye'}
                     iconColor={colors.dark}
                     onPress={handleViewPassword}
                   />
@@ -142,29 +123,9 @@ const Login = () => {
               mode="outlined"
               style={styles.btn}
               buttonColor={colors.primary}
-              labelStyle={styles.labelStyle}
               textColor={colors.light}>
-              Sign in
+              Connexion
             </Button>
-            <TouchableOpacity
-              style={styles.btnForgot}
-              onPress={() => navigation.navigate('ForgetPassword')}>
-              <Text
-                variant="bodyLarge"
-                style={[styles.textForgot, {color: colors.error}]}>
-                {' '}
-                Forgot password ?
-              </Text>
-            </TouchableOpacity>
-            <View style={styles.ViewSignup}>
-              <Text variant="bodyLarge">New here ?</Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-                <Text variant="bodyLarge" style={styles.signup}>
-                  {' '}
-                  Sign up
-                </Text>
-              </TouchableOpacity>
-            </View>
           </View>
         )}
       </Formik>
@@ -176,7 +137,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.clouds,
-    paddingTop: Platform.OS === 'ios' ? 66 : 20,
+    paddingTop: Platform.OS === 'ios' ? 66 : 30,
   },
   welcomeView: {
     marginHorizontal: 20,
@@ -185,12 +146,10 @@ const styles = StyleSheet.create({
   welcome: {
     marginVertical: 5,
     fontWeight: '800',
-    fontFamily: 'Poppins-Bold',
   },
   welcomeSub: {
     marginVertical: 15,
     marginLeft: 2,
-    fontFamily: 'Poppins-Regular',
   },
   formView: {
     backgroundColor: theme.colors.light,
@@ -198,7 +157,7 @@ const styles = StyleSheet.create({
     right: 0,
     left: 0,
     bottom: 0,
-    height: Dimensions.get('window').height / 1.89,
+    height: Dimensions.get('window').height / 2.1,
     elevation: 2,
     borderTopRightRadius: 35,
     borderTopLeftRadius: 35,
@@ -206,7 +165,6 @@ const styles = StyleSheet.create({
   },
   appTitle: {
     fontWeight: '600',
-    fontFamily: 'Poppins-Regular',
     marginHorizontal: 20,
     marginVertical: 20,
   },
@@ -221,30 +179,11 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     textAlign: 'auto',
   },
-  textForgot: {
-    marginTop: 25,
-    marginHorizontal: 20,
-    fontFamily: 'Poppins-Regular',
-    fontWeight: '500',
-  },
-  btnForgot: {
-    alignSelf: 'flex-start',
-    fontFamily: 'Poppins-Regular',
-  },
-  ViewSignup: {
-    flexDirection: 'row',
+  img: {
+    width: 180,
+    height: 180,
     alignSelf: 'center',
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  labelStyle: {
-    fontSize: 15,
-    fontFamily: 'Poppins-Regular',
-  },
-  signup: {
-    color: theme.colors.primary,
-    fontFamily: 'Poppins-Bold',
-    fontWeight: '500',
+    resizeMode: 'cover',
   },
 });
 

@@ -67,7 +67,7 @@ const App = () => {
       <AuthContext.Provider value={authContext}>
         <NavigationContainer>
           <GestureHandlerRootView style={styles.wrapper}>
-            <AuthStack />
+            {state?.isSignout ? <Onboarding /> : <AuthStack />}
           </GestureHandlerRootView>
         </NavigationContainer>
       </AuthContext.Provider>

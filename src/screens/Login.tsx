@@ -27,7 +27,7 @@ const Login = () => {
     try {
       setLoading(!loading);
       await keyChain.setGenericPassword(values.login, values.password);
-      const user = await loginUser(values.username, values.password);
+      const user = await loginUser(values.login, values.password);
       if (user) {
         // update global state while dispatch action
         dispatch?.getUser(user);

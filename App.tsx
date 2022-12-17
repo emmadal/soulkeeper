@@ -11,6 +11,7 @@ import {initialState} from './src/state';
 import {Entreprise} from './src/types';
 import {AuthContext} from './src/context/AuthContext';
 import Onboarding from './src/navigation/Onboarding';
+import AuthStack from './src/navigation/AuthScreen';
 import AwesomeIcon from 'react-native-vector-icons/Feather';
 
 const App = () => {
@@ -66,7 +67,7 @@ const App = () => {
       <AuthContext.Provider value={authContext}>
         <NavigationContainer>
           <GestureHandlerRootView style={styles.wrapper}>
-            <Onboarding />
+            <AuthStack />
           </GestureHandlerRootView>
         </NavigationContainer>
       </AuthContext.Provider>

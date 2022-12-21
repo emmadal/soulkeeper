@@ -4,7 +4,7 @@
 
 import 'react-native-gesture-handler';
 import {AppRegistry} from 'react-native';
-import {fr, registerTranslation} from 'react-native-paper-dates';
+import {registerTranslation} from 'react-native-paper-dates';
 import App from './App';
 import {name as appName} from './app.json';
 registerTranslation('fr', {

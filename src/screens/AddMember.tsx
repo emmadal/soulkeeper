@@ -267,21 +267,6 @@ const AddMember = () => {
                 style={styles.inputView}
                 onBlur={handleBlur('quartier')}
               />
-              {/* <DatePickerInput
-                locale="fr"
-                label="Date de naissance"
-                activeOutlineColor={theme.colors.primary}
-                outlineColor={theme.colors.outline}
-                value={inputDate}
-                saveLabel="Choisir"
-                onChange={d => setInputDate(d)}
-                underlineColor="transparent"
-                underlineColorAndroid="transparent"
-                inputMode="start"
-                style={styles.dateInput}
-                mode="outlined"
-                calendarIcon="calendar"
-              /> */}
               <Button
                 onPress={handleSubmit}
                 mode="outlined"

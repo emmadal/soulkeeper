@@ -6,6 +6,8 @@ import Icon from 'react-native-vector-icons/Feather';
 import Home from '../screens/Home';
 import Profile from '../screens/Profile';
 import Settings from '../screens/Settings';
+import Pointage from '../screens/Pointage';
+
 
 const Tab = createBottomTabNavigator();
 
@@ -41,6 +43,32 @@ const TabBar = ({theme}: any) => {
               color={focused ? colors.primary : colors.grey100}
             />
           ),
+          tabBarActiveTintColor: colors.primary,
+          tabBarInactiveTintColor: colors.grey100,
+        }}
+      />
+      <Tab.Screen
+        name="Pointage"
+        component={Pointage}
+        options={{
+          title: 'Faire un pointage',
+          headerTitleStyle: {
+            color: colors.text,
+          },
+          headerTitleAlign: 'center',
+          tabBarLabelStyle: {
+            fontSize: 13,
+            fontWeight: 'bold',
+            paddingBottom: Platform.OS === 'ios' ? 0 : 2,
+          },
+          tabBarIcon: ({focused}) => (
+            <Icon
+              name="edit-3"
+              size={22}
+              color={focused ? colors.primary : colors.grey100}
+            />
+          ),
+          tabBarLabel: 'Pointage',
           tabBarActiveTintColor: colors.primary,
           tabBarInactiveTintColor: colors.grey100,
         }}

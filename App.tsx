@@ -12,7 +12,7 @@ import {Entreprise} from './src/types';
 import {AuthContext} from './src/context/AuthContext';
 import Onboarding from './src/navigation/Onboarding';
 import AuthStack from './src/navigation/AuthScreen';
-import AwesomeIcon from 'react-native-vector-icons/Feather';
+import AwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
 const App = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -67,7 +67,8 @@ const App = () => {
       <AuthContext.Provider value={authContext}>
         <NavigationContainer>
           <GestureHandlerRootView style={styles.wrapper}>
-            {state?.isSignout ? <Onboarding /> : <AuthStack />}
+            {/* {state?.isSignout ? <Onboarding /> : <AuthStack />} */}
+            <AuthStack />
           </GestureHandlerRootView>
         </NavigationContainer>
       </AuthContext.Provider>

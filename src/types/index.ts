@@ -32,7 +32,7 @@ export type Membres = {
   autre_contact: string;
   idprofession: number;
   email: string;
-  idquartier?: number;
+  quartier?: string;
   idtribu: number;
   idstatut: number;
   dateenregistre: string;

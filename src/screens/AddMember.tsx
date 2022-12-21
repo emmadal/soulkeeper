@@ -1,5 +1,5 @@
-import React, {useState, useEffect, useMemo} from 'react';
-import {ScrollView, View, StyleSheet, SafeAreaView} from 'react-native';
+import React, {useState} from 'react';
+import {ScrollView, View, StyleSheet} from 'react-native';
 import {Formik} from 'formik';
 import * as yup from 'yup';
 import {TextInput, Button, Text, Snackbar} from 'react-native-paper';
@@ -62,7 +62,7 @@ const AddMember = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Loader loading={loading} />
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -287,7 +287,6 @@ const AddMember = () => {
                 mode="outlined"
                 style={styles.btnSave}
                 buttonColor={theme.colors.primary}
-                labelStyle={styles.labelStyle}
                 textColor={theme.colors.light}>
                 Ajouter un membre
               </Button>
@@ -307,7 +306,7 @@ const AddMember = () => {
           <Text style={{color: theme.colors.light}}>{message}</Text>
         </Snackbar>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -334,7 +333,6 @@ const styles = StyleSheet.create({
     textAlign: 'auto',
     marginVertical: 8,
     width: 'auto',
-    color: '#000',
   },
   desc: {
     marginVertical: 10,
@@ -345,7 +343,6 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
     margin: 15,
   },
-  labelStyle: {},
   socialContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -365,9 +362,6 @@ const styles = StyleSheet.create({
   snack: {
     backgroundColor: theme.colors.snack,
     color: theme.colors.light,
-  },
-  dateInput: {
-    // marginTop: -150,
   },
 });
 

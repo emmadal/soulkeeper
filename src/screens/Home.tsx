@@ -1,7 +1,8 @@
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import {StyleSheet, View, Platform, ScrollView} from 'react-native';
 import {AuthContext} from '../context/AuthContext';
 import {FAB} from 'react-native-paper';
+import {PaperSelect} from 'react-native-paper-select';
 import {DatePickerInput} from 'react-native-paper-dates';
 import Icon from 'react-native-vector-icons/Feather';
 import theme from '../themes';
@@ -11,8 +12,16 @@ const Home = () => {
   const {state} = useContext(AuthContext);
   const [inputDate, setInputDate] = React.useState<Date | undefined>(undefined);
   const navigation = useNavigation();
-
-  console.log('state', state);
+  const [gender, setGender] = useState<any>({
+    value: '',
+    list: [
+      {_id: '1', value: 'Culte du dimanche'},
+      {_id: '2', value: 'Cellule de priere'},
+      {_id: '3', value: "Culte d'enseignement"},
+    ],
+    selectedList: [],
+    error: '',
+  });
 
   return (
     <View style={styles.wrapper}>
@@ -20,6 +29,34 @@ const Home = () => {
         showsVerticalScrollIndicator={false}
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={styles.content}>
+        <View style={styles.dateView}>
+          <PaperSelect
+            label="Sélectionnez un culte"
+            value={gender.value}
+            onSelection={(value: any) => {
+              setGender({
+                ...gender,
+                value: value.text,
+                selectedList: value.selectedList,
+                error: '',
+              });
+            }}
+            dialogTitle="Sélectionnez un culte"
+            activeUnderlineColor="transparent"
+            underlineColor="transparent"
+            textInputMode="outlined"
+            outlineColor={theme.colors.outline}
+            activeOutlineColor={theme.colors.primary}
+            hideSearchBox={true}
+            multiEnable={false}
+            arrayList={[...gender.list]}
+            selectedArrayList={[...gender.selectedList]}
+            errorText={gender.error}
+            checkboxColor={theme.colors.primary}
+            modalCloseButtonText="Fermer"
+            modalDoneButtonText="Choisir"
+          />
+        </View>
         <View style={styles.dateView}>
           <DatePickerInput
             locale="fr"
@@ -69,7 +106,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
   dateView: {
-    marginTop: 30,
+    marginTop: 20,
   },
 });
 

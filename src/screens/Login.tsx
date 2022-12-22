@@ -105,7 +105,7 @@ const Login = () => {
                 onBlur={handleBlur('password')}
                 right={
                   <TextInput.Icon
-                    icon={isView ? 'eye-off' : 'eye'}
+                    icon={isView ? 'eye-slash' : 'eye'}
                     iconColor={colors.dark}
                     onPress={handleViewPassword}
                   />

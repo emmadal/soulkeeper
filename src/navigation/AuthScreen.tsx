@@ -5,6 +5,7 @@ import AddMember from '../screens/AddMember';
 import Profile from '../screens/Profile';
 
 import theme from '../themes';
+import Manual from '../screens/Manual';
 const Stack = createNativeStackNavigator();
 
 const AuthStack = () => {
@@ -33,6 +34,17 @@ const AuthStack = () => {
         component={Profile}
         options={{
           title: 'Mon compte',
+          headerTitleStyle: {
+            color: theme.colors.text,
+          },
+          headerTitleAlign: 'left',
+        }}
+      />
+      <Stack.Screen
+        name="Manual"
+        component={Manual}
+        options={{
+          title: "Manuel d'utilisation",
           headerTitleStyle: {
             color: theme.colors.text,
           },

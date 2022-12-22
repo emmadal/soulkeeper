@@ -40,7 +40,9 @@ const Settings = () => {
           </Text>
           <Icon color={theme.colors.text} name="user" size={20} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.optionContainer} onPress={() => ''}>
+        <TouchableOpacity
+          style={styles.optionContainer}
+          onPress={() => navigation.navigate('Manual')}>
           <Text variant="titleMedium" style={{color: theme.colors.text}}>
             Manuel d'utilisation
           </Text>
@@ -57,6 +59,12 @@ const Settings = () => {
             Contactez-nous
           </Text>
           <Icon color={theme.colors.text} name="mail" size={20} />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.optionContainer} onPress={() => ''}>
+          <Text variant="titleMedium" style={{color: theme.colors.text}}>
+            Déconnexion
+          </Text>
+          <Icon color={theme.colors.text} name="power" size={20} />
         </TouchableOpacity>
         <View style={styles.viewFooter}>
           <Text variant="titleMedium" style={styles.companyName}>

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useCallback, useState, useContext, useEffect} from 'react';
 import {ScrollView, View, StyleSheet} from 'react-native';
 import {Formik} from 'formik';
 import * as yup from 'yup';
@@ -9,33 +9,69 @@ import {PaperSelect} from 'react-native-paper-select';
 import Loader from '../components/Loader';
 import * as regex from '../regex';
 import {countryList} from '../utils';
+import {getCities, getCommune} from '../api';
+import {AuthContext} from '../context/AuthContext';
 
 const AddMember = () => {
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, SetMessage] = useState('');
+  const {state} = useContext(AuthContext);
   const navigation = useNavigation();
+
   const [country, setCountry] = useState<any>({
     value: '',
     list: [...countryList],
     selectedList: [],
     error: '',
   });
-  const [gender, setGender] = useState<any>({
+  const [town, setTown] = useState<any>({
     value: '',
-    list: [
-      {_id: '1', value: 'MALE'},
-      {_id: '2', value: 'FEMALE'},
-      {_id: '3', value: 'OTHERS'},
-    ],
+    list: [],
+    selectedList: [],
+    error: '',
+  });
+  const [commune, setCommune] = useState<any>({
+    value: '',
+    list: [],
     selectedList: [],
     error: '',
   });
 
+  // Get Cities and district from database
+  const retrieveDataFromServer = useCallback(async () => {
+    const communeArr = [];
+    const cityArr = [];
+
+    const [cities, districts] = await Promise.all([
+      getCities(state?.token),
+      getCommune(state?.token),
+    ]);
+
+    // format data to be conform with paperSelect dataTypes
+    for (const district of districts) {
+      communeArr.push({_id: district?.idcommune, value: district?.libelle});
+    }
+    for (const city of cities) {
+      cityArr.push({_id: city?.idlocalites, value: city?.libelle});
+    }
+
+    // update state
+    setCommune({...commune, list: [...communeArr]});
+    setTown({...town, list: [...cityArr]});
+  }, [commune, state?.token, town]);
+
+  useEffect(() => {
+    retrieveDataFromServer();
+  }, []);
+
   const onDismissSnackBar = () => setVisible(false);
 
   const saveMember = async (values: any) => {
-    console.log(values);
+    const data = {
+      ...values,
+    };
+    console.log(data);
   };
 
   const dateIsValid = (dateStr: string) => {
@@ -76,13 +112,8 @@ const AddMember = () => {
             datenaissance: '',
             contact: '',
             autre_contact: '',
-            idprofession: '',
             email: '',
             quartier: '',
-            idtribu: '',
-            idstatut: '',
-            genre: '',
-            identreprises: '',
           }}
           validate={values => {
             const errors = {};
@@ -212,10 +243,10 @@ const AddMember = () => {
               />
               <PaperSelect
                 label="Ville (Facultatif)"
-                value={gender.value}
+                value={town.value}
                 onSelection={(value: any) => {
-                  setGender({
-                    ...gender,
+                  setTown({
+                    ...town,
                     value: value.text,
                     selectedList: value.selectedList,
                     error: '',
@@ -228,18 +259,20 @@ const AddMember = () => {
                 activeOutlineColor={theme.colors.primary}
                 hideSearchBox={true}
                 multiEnable={false}
-                arrayList={[...gender.list]}
-                selectedArrayList={[...gender.selectedList]}
-                errorText={gender.error}
+                arrayList={[...town.list]}
+                selectedArrayList={[...town.selectedList]}
+                errorText={town.error}
                 checkboxColor={theme.colors.primary}
+                modalCloseButtonText="Fermer"
+                modalDoneButtonText="Choisir"
               />
 
               <PaperSelect
                 label="Commune (Facultatif)"
-                value={gender.value}
+                value={commune.value}
                 onSelection={(value: any) => {
-                  setGender({
-                    ...gender,
+                  setCommune({
+                    ...commune,
                     value: value.text,
                     selectedList: value.selectedList,
                     error: '',
@@ -252,10 +285,12 @@ const AddMember = () => {
                 activeOutlineColor={theme.colors.primary}
                 hideSearchBox={true}
                 multiEnable={false}
-                arrayList={[...gender.list]}
-                selectedArrayList={[...gender.selectedList]}
-                errorText={gender.error}
+                arrayList={[...commune.list]}
+                selectedArrayList={[...commune.selectedList]}
+                errorText={commune.error}
                 checkboxColor={theme.colors.primary}
+                modalCloseButtonText="Fermer"
+                modalDoneButtonText="Choisir"
               />
               <TextInput
                 mode="outlined"

@@ -24,6 +24,9 @@ export const loginUser = async (login: string, password: string) => {
   }
 };
 
+/**
+ * Get user profile by username
+ */
 export const getUserProfile = (
   username: string,
   token: string,
@@ -41,3 +44,41 @@ export const getUserProfile = (
       .then(e => resolve(e))
       .catch(() => reject('Echec de la connexion'));
   });
+
+/**
+ * Get All cities available
+ */
+export const getCities = (token: string) => {
+  return new Promise((resolve, reject) => {
+    const params = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    fetch(API.localites, params)
+      .then(res => res.json())
+      .then(e => resolve(e))
+      .catch(err => reject(err));
+  });
+};
+
+/**
+ * Get All District available
+ */
+export const getCommune = (token: string) => {
+  return new Promise((resolve, reject) => {
+    const params = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    fetch(API.commune, params)
+      .then(res => res.json())
+      .then(e => resolve(e))
+      .catch(err => reject(err));
+  });
+};

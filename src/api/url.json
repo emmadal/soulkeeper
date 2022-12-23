@@ -4,5 +4,6 @@
     "pointage": "http://192.168.1.2:5000/add-pointage",
     "cultes": "http://192.168.1.2:5000/cultes",
     "localites": "http://192.168.1.2:5000/localites",
+    "commune": "http://192.168.1.2:5000/commune",
     "getUserByUsername": "http://192.168.1.2:5000/user"
 }

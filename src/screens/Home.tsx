@@ -1,6 +1,5 @@
-import React, {useContext, useState} from 'react';
+import React, {useState} from 'react';
 import {StyleSheet, View, Platform, ScrollView} from 'react-native';
-import {AuthContext} from '../context/AuthContext';
 import {FAB} from 'react-native-paper';
 import {PaperSelect} from 'react-native-paper-select';
 import {DatePickerInput} from 'react-native-paper-dates';
@@ -9,7 +8,6 @@ import theme from '../themes';
 import {useNavigation} from '@react-navigation/native';
 
 const Home = () => {
-  const {state} = useContext(AuthContext);
   const [inputDate, setInputDate] = React.useState<Date | undefined>(undefined);
   const navigation = useNavigation();
   const [gender, setGender] = useState<any>({

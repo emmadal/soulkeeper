@@ -2,7 +2,7 @@ import {initialState} from '../state';
 import {State} from '../types';
 
 export enum ActionKind {
-  FETCH_DETAILS = 'FETCH_DETAILS',
+  GET_USER = 'GET_USER',
   SIGN_OUT = 'SIGN_OUT',
 }
 
@@ -16,7 +16,7 @@ type Action = {
  */
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
-    case ActionKind.FETCH_DETAILS:
+    case ActionKind.GET_USER:
       return {
         ...state,
         user: action.payload,

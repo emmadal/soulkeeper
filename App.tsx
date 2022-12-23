@@ -13,6 +13,7 @@ import {AuthContext} from './src/context/AuthContext';
 import Onboarding from './src/navigation/Onboarding';
 import AuthStack from './src/navigation/AuthScreen';
 import AwesomeIcon from 'react-native-vector-icons/FontAwesome';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const App = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -26,7 +27,7 @@ const App = () => {
          */
         getUser: (user: Entreprise) => {
           dispatch({
-            type: ActionKind.FETCH_DETAILS,
+            type: ActionKind.GET_USER,
             payload: user,
           });
         },
@@ -35,7 +36,10 @@ const App = () => {
          */
         signOut: async () => {
           try {
-            await keyChain.resetGenericPassword();
+            await Promise.all([
+              AsyncStorage.removeItem('@soulkeeper_token'),
+              AsyncStorage.removeItem('@soulkeeper_username'),
+            ]);
             dispatch({type: ActionKind.SIGN_OUT});
           } catch (error) {}
         },
@@ -67,8 +71,8 @@ const App = () => {
       <AuthContext.Provider value={authContext}>
         <NavigationContainer>
           <GestureHandlerRootView style={styles.wrapper}>
-            {/* {state?.isSignout ? <Onboarding /> : <AuthStack />} */}
-            <AuthStack />
+            {state?.isSignout ? <Onboarding /> : <AuthStack />}
+            {/* <AuthStack /> */}
           </GestureHandlerRootView>
         </NavigationContainer>
       </AuthContext.Provider>

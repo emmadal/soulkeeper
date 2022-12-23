@@ -12,7 +12,6 @@ export const loginUser = (
     const params = {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      redirect: 'follow',
       body: JSON.stringify({login, password}),
     };
     fetch(API.login, params)

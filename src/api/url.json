@@ -1,6 +1,7 @@
 {
-    "login": "https://www.bigdataci.info/api/connexionMenbre",
-    "profile": "https://www.bigdataci.info/api/user",
-    "pointage": "https://www.bigdataci.info/api/savepointage",
-    "addmembre": "https://www.bigdataci.info/api/addmembre"
+    "login": "http://192.168.1.2:5000/login",
+    "addMembre": "http://192.168.1.2:5000/add-membre",
+    "pointage": "http://192.168.1.2:5000/add-pointage",
+    "cultes": "http://192.168.1.2:5000/cultes",
+    "localites": "http://192.168.1.2:5000/localites"
 }

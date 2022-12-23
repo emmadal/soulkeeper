@@ -10,10 +10,10 @@ import {
 import {Formik} from 'formik';
 import * as yup from 'yup';
 import {Text, useTheme, Button, TextInput} from 'react-native-paper';
-import * as keyChain from 'react-native-keychain';
 import {loginUser} from '../api';
 import theme from '../themes';
 import {AuthContext} from '../context/AuthContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Login = () => {
   const [isView, setIsView] = useState(true);
@@ -26,9 +26,10 @@ const Login = () => {
   const handleSignin = async (values: any) => {
     try {
       setLoading(!loading);
-      await keyChain.setGenericPassword(values.login, values.password);
       const user = await loginUser(values.login, values.password);
       if (user) {
+        await AsyncStorage.setItem('@soulkeeper_token', user.token);
+        await AsyncStorage.setItem('@soulkeeper_username', user.login);
         // update global state while dispatch action
         dispatch?.getUser(user);
         setLoading(false);

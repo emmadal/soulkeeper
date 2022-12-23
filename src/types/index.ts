@@ -18,6 +18,7 @@ export type Entreprise = {
   login: string;
   expediteur: string;
   role?: number;
+  token: string;
 };
 
 /**

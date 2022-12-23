@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext, useState} from 'react';
 import {Text} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Feather';
 import {
@@ -12,9 +12,13 @@ import {
 import theme from '../themes';
 import {openComposer} from 'react-native-email-link';
 import {useNavigation} from '@react-navigation/native';
+import Loader from '../components/Loader';
+import {AuthContext} from '../context/AuthContext';
 
 const Settings = () => {
   const navigation = useNavigation();
+  const {dispatch} = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
 
   const openMailBox = async () => {
     try {
@@ -26,8 +30,17 @@ const Settings = () => {
     }
   };
 
+  const logOut = async () => {
+    setLoading(!loading);
+    setTimeout(async () => {
+      setLoading(false);
+      dispatch?.signOut();
+    }, 3000);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
+      <Loader loading={loading} />
       <ScrollView
         showsHorizontalScrollIndicator={false}
         contentInsetAdjustmentBehavior="automatic"
@@ -60,7 +73,7 @@ const Settings = () => {
           </Text>
           <Icon color={theme.colors.text} name="mail" size={20} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.optionContainer} onPress={() => ''}>
+        <TouchableOpacity style={styles.optionContainer} onPress={logOut}>
           <Text variant="titleMedium" style={{color: theme.colors.text}}>
             Déconnexion
           </Text>

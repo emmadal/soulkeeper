@@ -10,6 +10,7 @@ import {
 import {Formik} from 'formik';
 import * as yup from 'yup';
 import {Text, useTheme, Button, TextInput} from 'react-native-paper';
+import * as keyChain from 'react-native-keychain';
 import {loginUser} from '../api';
 import theme from '../themes';
 import {AuthContext} from '../context/AuthContext';
@@ -28,6 +29,7 @@ const Login = () => {
       setLoading(!loading);
       const user = await loginUser(values.login, values.password);
       if (user) {
+        await keyChain.setGenericPassword(values.login, values.password);
         await AsyncStorage.setItem('@soulkeeper_token', user.token);
         await AsyncStorage.setItem('@soulkeeper_username', user.login);
         // update global state while dispatch action

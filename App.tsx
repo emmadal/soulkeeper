@@ -1,9 +1,8 @@
-import React, {useEffect, useMemo, useReducer} from 'react';
+import React, {useEffect, useMemo, useReducer, useCallback} from 'react';
 import SplashScreen from 'react-native-splash-screen';
 import {StyleSheet, StatusBar, Platform} from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {NavigationContainer} from '@react-navigation/native';
-import * as keyChain from 'react-native-keychain';
 import {Provider} from 'react-native-paper';
 import theme from './src/themes';
 import reducer, {ActionKind} from './src/reducer';
@@ -14,6 +13,7 @@ import Onboarding from './src/navigation/Onboarding';
 import AuthStack from './src/navigation/AuthScreen';
 import AwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {getUserProfile} from './src/api';
 
 const App = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -48,8 +48,29 @@ const App = () => {
     [state],
   );
 
+  const loadAsync = useCallback(async () => {
+    // Restore username and token from localStorage
+    const [username, token] = await Promise.all([
+      AsyncStorage.getItem('@soulkeeper_username'),
+      AsyncStorage.getItem('@soulkeeper_token'),
+    ]);
+    if (username && token) {
+      const userProfile = await getUserProfile(username, token);
+      if (userProfile) {
+        authContext?.dispatch?.getUser(userProfile);
+        SplashScreen.hide();
+      } else {
+        SplashScreen.hide();
+      }
+    } else {
+      authContext?.dispatch?.signOut();
+      SplashScreen.hide();
+    }
+  }, [authContext?.dispatch]);
+
   useEffect(() => {
-    SplashScreen.hide();
+    // Get token localStorage and navigate to the authenticated screen
+    loadAsync();
   }, []);
 
   return (

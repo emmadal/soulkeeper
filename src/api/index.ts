@@ -19,3 +19,18 @@ export const loginUser = (
       .then(e => resolve(e))
       .catch(() => reject('Echec de la connexion'));
   });
+
+export const getUserProfile = (username: string, token: string) =>
+  new Promise((resolve, reject) => {
+    const params = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    fetch(`${API.getUserById}/${username}`, params)
+      .then(res => res.json())
+      .then(e => resolve(e))
+      .catch(() => reject('Echec de la connexion'));
+  });

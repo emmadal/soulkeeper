@@ -4,6 +4,7 @@ import {State} from '../types';
 export enum ActionKind {
   GET_USER = 'GET_USER',
   SIGN_OUT = 'SIGN_OUT',
+  RESTORE_TOKEN = 'RESTORE_TOKEN',
 }
 
 type Action = {
@@ -21,6 +22,11 @@ const reducer = (state: State, action: Action): State => {
         ...state,
         user: action.payload,
         isSignout: false,
+      };
+    case ActionKind.RESTORE_TOKEN:
+      return {
+        ...state,
+        token: action.payload,
       };
     case ActionKind.SIGN_OUT:
       return {

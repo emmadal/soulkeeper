@@ -20,7 +20,7 @@ export const initialState: State = {
     login: '',
     expediteur: '',
     role: 0,
-    token: '',
   },
+  token: '',
   isSignout: true,
 };

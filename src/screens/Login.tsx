@@ -14,7 +14,7 @@ import * as keyChain from 'react-native-keychain';
 import {loginUser} from '../api';
 import theme from '../themes';
 import {AuthContext} from '../context/AuthContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import Loader from '../components/Loader';
 
 const Login = () => {
   const [isView, setIsView] = useState(true);
@@ -25,25 +25,24 @@ const Login = () => {
   const handleViewPassword = () => setIsView(!isView);
 
   const handleSignin = async (values: any) => {
-    try {
-      setLoading(!loading);
-      const user = await loginUser(values.login, values.password);
-      if (user) {
-        await keyChain.setGenericPassword(values.login, values.password);
-        await AsyncStorage.setItem('@soulkeeper_token', user.token);
-        await AsyncStorage.setItem('@soulkeeper_username', user.login);
-        // update global state while dispatch action
-        dispatch?.getUser(user);
-        setLoading(false);
-      }
-    } catch (error: any) {
+    setLoading(!loading);
+    const user = await loginUser(values.login, values.password);
+    if (user) {
+      const {token, ...rest} = user;
+      await keyChain.setGenericPassword(values.login, values.password);
+      // update global state while dispatch action
+      dispatch?.getUser(rest);
+      dispatch?.restoreToken(token);
       setLoading(false);
-      Alert.alert(error);
+    } else {
+      setLoading(false);
+      Alert.alert('Mot de passe ou Login invalide!');
     }
   };
 
   return (
     <View style={styles.container}>
+      <Loader loading={loading} />
       <View style={styles.welcomeView}>
         <Text variant="titleLarge" style={styles.welcome}>
           Bienvienue sur SOUL KEEPER.
@@ -122,7 +121,6 @@ const Login = () => {
             </View>
             <Button
               onPress={handleSubmit}
-              loading={loading}
               mode="outlined"
               style={styles.btn}
               buttonColor={colors.primary}

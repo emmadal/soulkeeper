@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {StyleSheet, View, Platform, ScrollView} from 'react-native';
 import {FAB} from 'react-native-paper';
 import {PaperSelect} from 'react-native-paper-select';
@@ -6,10 +6,12 @@ import {DatePickerInput} from 'react-native-paper-dates';
 import Icon from 'react-native-vector-icons/Feather';
 import theme from '../themes';
 import {useNavigation} from '@react-navigation/native';
+import {AuthContext} from '../context/AuthContext';
 
 const Home = () => {
   const [inputDate, setInputDate] = React.useState<Date | undefined>(undefined);
   const navigation = useNavigation();
+  const {state} = useContext(AuthContext);
   const [gender, setGender] = useState<any>({
     value: '',
     list: [
@@ -20,6 +22,8 @@ const Home = () => {
     selectedList: [],
     error: '',
   });
+
+  console.log('state: ', state);
 
   return (
     <View style={styles.wrapper}>

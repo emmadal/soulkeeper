@@ -2,7 +2,7 @@
  * Entreprise type
  */
 export type Entreprise = {
-  identreprises?: number;
+  identreprises: number;
   capture: string;
   nomentreprise: string;
   nomresponsable: string;
@@ -17,8 +17,7 @@ export type Entreprise = {
   dateenregistrement: string;
   login: string;
   expediteur: string;
-  role?: number;
-  token: string;
+  role: number;
 };
 
 /**
@@ -58,8 +57,9 @@ export type Pointage = {
  * State type contain the App state
  */
 export type State = {
-  user: Entreprise | null;
+  user: Entreprise;
   isSignout: boolean;
+  token: string;
 };
 
 /**
@@ -67,5 +67,6 @@ export type State = {
  */
 export type dispatchMethod = {
   getUser: (user: Entreprise) => void;
+  restoreToken: (token: string) => void;
   signOut: () => void;
 };

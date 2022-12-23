@@ -5,6 +5,7 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {NavigationContainer} from '@react-navigation/native';
 import {Provider} from 'react-native-paper';
 import theme from './src/themes';
+import * as keyChain from 'react-native-keychain';
 import reducer, {ActionKind} from './src/reducer';
 import {initialState} from './src/state';
 import {Entreprise} from './src/types';
@@ -12,8 +13,7 @@ import {AuthContext} from './src/context/AuthContext';
 import Onboarding from './src/navigation/Onboarding';
 import AuthStack from './src/navigation/AuthScreen';
 import AwesomeIcon from 'react-native-vector-icons/FontAwesome';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {getUserProfile} from './src/api';
+import {getUserProfile, loginUser} from './src/api';
 
 const App = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -32,14 +32,20 @@ const App = () => {
           });
         },
         /**
+         * dispatch an action to restore token
+         */
+        restoreToken: (refreshToken: string) => {
+          dispatch({
+            type: ActionKind.RESTORE_TOKEN,
+            payload: refreshToken,
+          });
+        },
+        /**
          * dispatch an action to sign out user
          */
         signOut: async () => {
           try {
-            await Promise.all([
-              AsyncStorage.removeItem('@soulkeeper_token'),
-              AsyncStorage.removeItem('@soulkeeper_username'),
-            ]);
+            await keyChain.resetGenericPassword();
             dispatch({type: ActionKind.SIGN_OUT});
           } catch (error) {}
         },
@@ -49,24 +55,23 @@ const App = () => {
   );
 
   const loadAsync = useCallback(async () => {
-    // Restore username and token from localStorage
-    const [username, token] = await Promise.all([
-      AsyncStorage.getItem('@soulkeeper_username'),
-      AsyncStorage.getItem('@soulkeeper_token'),
-    ]);
-    if (username && token) {
-      const userProfile = await getUserProfile(username, token);
-      if (userProfile) {
-        authContext?.dispatch?.getUser(userProfile);
+    try {
+      const res = await keyChain.getGenericPassword();
+      if (res) {
+        const req = await loginUser(res.username, res.password);
+        const user = await getUserProfile(res.username, req?.token);
+        authContext.dispatch.getUser(user);
+        authContext.dispatch.restoreToken(req?.token);
         SplashScreen.hide();
       } else {
         SplashScreen.hide();
+        authContext.dispatch.signOut();
       }
-    } else {
-      authContext?.dispatch?.signOut();
+    } catch (error) {
       SplashScreen.hide();
+      authContext.dispatch.signOut();
     }
-  }, [authContext?.dispatch]);
+  }, [authContext.dispatch]);
 
   useEffect(() => {
     // Get token localStorage and navigate to the authenticated screen

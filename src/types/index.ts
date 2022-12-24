@@ -2,22 +2,22 @@
  * Entreprise type
  */
 export type Entreprise = {
-  identreprises: number;
+  identreprises?: number;
   capture: string;
   nomentreprise: string;
   nomresponsable: string;
   numero: string;
   email: string;
-  nomresponsabletwo: string;
-  numerotwo: string;
-  emailtwo: string;
+  nomresponsabletwo?: string;
+  numerotwo?: string;
+  emailtwo?: string;
   password: string;
-  idlocalites: number;
-  description: string;
-  dateenregistrement: string;
+  idlocalites?: number;
+  description?: string;
+  dateenregistrement?: Date;
   login: string;
-  expediteur: string;
-  role: number;
+  expediteur?: string;
+  role?: number;
 };
 
 /**
@@ -27,18 +27,18 @@ export type Membres = {
   idmembres?: number;
   nom: string;
   prenoms: string;
-  datenaissance: string;
-  contact: string;
+  contact?: string;
+  date_naissance: string;
   autre_contact: string;
-  idprofession: number;
-  email: string;
-  quartier?: string;
-  idtribu: number;
-  idstatut: number;
-  dateenregistre: string;
-  genre: number;
+  quartier: string;
+  idprofession?: number;
+  email?: string;
+  dateenregistre?: Date;
+  genre?: number;
   identreprises: number;
   idville?: number;
+  idcommune?: number;
+  idpays?: number;
 };
 
 /**
@@ -46,10 +46,10 @@ export type Membres = {
  */
 export type Pointage = {
   idpointage?: number;
-  date: string;
+  date: Date;
   idmembres: number;
   idculte: number;
-  operateur: string;
+  Operateur?: string;
   identreprises: number;
 };
 

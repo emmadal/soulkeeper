@@ -26,17 +26,17 @@ const Login = () => {
 
   const handleSignin = async (values: any) => {
     setLoading(!loading);
-    const user = await loginUser(values.login, values.password);
-    if (user) {
-      const {token, ...rest} = user;
+    const res = await loginUser(values.login, values.password);
+    if (res?.role && res?.login) {
+      const {token, ...rest} = res;
       await keyChain.setGenericPassword(values.login, values.password);
       // update global state while dispatch action
-      dispatch?.getUser(rest);
       dispatch?.restoreToken(token);
+      dispatch?.getUser(rest);
       setLoading(false);
     } else {
       setLoading(false);
-      Alert.alert('Mot de passe ou Login invalide!');
+      Alert.alert(res);
     }
   };
 

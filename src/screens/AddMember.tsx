@@ -1,27 +1,26 @@
 import React, {useCallback, useState, useContext, useEffect} from 'react';
-import {ScrollView, View, StyleSheet} from 'react-native';
+import {ScrollView, View, StyleSheet, Alert} from 'react-native';
 import {Formik} from 'formik';
 import * as yup from 'yup';
 import {TextInput, Button, Text, Snackbar} from 'react-native-paper';
 import theme from '../themes';
-import {useNavigation} from '@react-navigation/native';
 import {PaperSelect} from 'react-native-paper-select';
 import Loader from '../components/Loader';
 import * as regex from '../regex';
-import {countryList} from '../utils';
-import {getCities, getCommune} from '../api';
+import {getCities, getCommune, getCountry, addMember} from '../api';
 import {AuthContext} from '../context/AuthContext';
+import useRefreshToken from '../hooks/useRefreshToken';
 
 const AddMember = () => {
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, SetMessage] = useState('');
   const {state} = useContext(AuthContext);
-  const navigation = useNavigation();
+  const token = useRefreshToken();
 
   const [country, setCountry] = useState<any>({
     value: '',
-    list: [...countryList],
+    list: [],
     selectedList: [],
     error: '',
   });
@@ -42,10 +41,12 @@ const AddMember = () => {
   const retrieveDataFromServer = useCallback(async () => {
     const communeArr = [];
     const cityArr = [];
+    const countryArr = [];
 
-    const [cities, districts] = await Promise.all([
-      getCities(state?.token),
-      getCommune(state?.token),
+    const [cities, districts, countries] = await Promise.all([
+      getCities(token || state?.token),
+      getCommune(token || state?.token),
+      getCountry(token || state?.token),
     ]);
 
     // format data to be conform with paperSelect dataTypes
@@ -53,13 +54,18 @@ const AddMember = () => {
       communeArr.push({_id: district?.idcommune, value: district?.libelle});
     }
     for (const city of cities) {
-      cityArr.push({_id: city?.idlocalites, value: city?.libelle});
+      cityArr.push({_id: city?.idville, value: city?.libelle});
+    }
+
+    for (const pays of countries) {
+      countryArr.push({_id: pays?.idpays, value: pays?.nom_fr_fr});
     }
 
     // update state
     setCommune({...commune, list: [...communeArr]});
     setTown({...town, list: [...cityArr]});
-  }, [commune, state?.token, town]);
+    setCountry({...country, list: [...countryArr]});
+  }, [commune, country, state?.token, token, town]);
 
   useEffect(() => {
     retrieveDataFromServer();
@@ -67,34 +73,34 @@ const AddMember = () => {
 
   const onDismissSnackBar = () => setVisible(false);
 
-  const saveMember = async (values: any) => {
-    const data = {
-      ...values,
-    };
-    console.log(data);
+  const getDate = () => {
+    const date = new Date().toLocaleDateString('fr');
+    const splitDate = date?.split('/').reverse().join('-');
+    return splitDate;
   };
 
-  const dateIsValid = (dateStr: string) => {
-    const regex = /^\d{2}\/\d{2}\/\d{4}$/;
-
-    if (dateStr.match(regex) === null) {
-      return false;
+  const saveMember = async (values: any) => {
+    setLoading(!loading);
+    const {jour, mois, annee, ...rest} = values;
+    const data = {
+      ...rest,
+      date_naissance: annee ? `${jour}-${mois}-${annee}` : `${jour}-${mois}`,
+      idpays: country?.selectedList[0]?._id,
+      idcommune: commune?.selectedList[0]?._id,
+      idville: town?.selectedList[0]?._id,
+      dateenregistre: getDate(),
+      identreprises: state?.user?.identreprises,
+    };
+    const req = await addMember(data, token || state?.token);
+    if (req?.status) {
+      setLoading(false);
+      setVisible(!visible);
+      SetMessage(req?.message);
+    } else {
+      setLoading(false);
+      setVisible(false);
+      Alert.alert(req?.message);
     }
-
-    const [day, month, year] = dateStr.split('/');
-
-    // 👇️ format Date string as `yyyy-mm-dd`
-    const isoFormattedStr = `${year}-${month}-${day}`;
-
-    const date = new Date(isoFormattedStr);
-
-    const timestamp = date.getTime();
-
-    if (typeof timestamp !== 'number' || Number.isNaN(timestamp)) {
-      return false;
-    }
-
-    return date.toISOString().startsWith(isoFormattedStr);
   };
 
   return (
@@ -109,26 +115,30 @@ const AddMember = () => {
           initialValues={{
             nom: '',
             prenoms: '',
-            datenaissance: '',
+            jour: '',
+            mois: '',
+            annee: '',
             contact: '',
             autre_contact: '',
             email: '',
             quartier: '',
           }}
-          validate={values => {
-            const errors = {};
-            if (!dateIsValid(values.datenaissance)) {
-              errors.datenaissance = 'Entrez une date de naissance valide';
-            }
-            return errors;
-          }}
           validationSchema={yup.object().shape({
             nom: yup.string().required('Entrez votre Nom'),
             prenoms: yup.string().required('Entrez votre Prénoms'),
+            mois: yup
+              .string()
+              .matches(regex.month, 'Mois de naissance invalide')
+              .required('Mois de naissance invalide'),
+            jour: yup
+              .string()
+              .matches(regex.day, 'Jour de naissance invalide')
+              .required('Jour de naissance invalide'),
             contact: yup
               .string()
               .matches(regex.phoneNumber, 'Entrez un contact valide')
               .required('Entrez un contact valide'),
+            quartier: yup.string().required('Entrez le Quartier'),
           })}
           onSubmit={values => saveMember(values)}>
           {({
@@ -138,53 +148,90 @@ const AddMember = () => {
             handleSubmit,
             errors,
             touched,
+            resetForm
           }) => (
             <View style={styles.content}>
-              <View>
-                <TextInput
-                  mode="outlined"
-                  label="Nom"
-                  autoCapitalize="none"
-                  value={values.nom}
-                  onChangeText={handleChange('nom')}
-                  style={styles.inputView}
-                  onBlur={handleBlur('nom')}
-                />
-                {errors.nom && touched.nom && (
-                  <Text style={{color: theme.colors.error}}>{errors.nom}</Text>
-                )}
+              <View style={styles.row}>
+                <View style={styles.inputWrap}>
+                  <TextInput
+                    mode="outlined"
+                    label="Nom"
+                    autoCapitalize="none"
+                    value={values.nom}
+                    onChangeText={handleChange('nom')}
+                    style={styles.inputView}
+                    onBlur={handleBlur('nom')}
+                  />
+                  {errors.nom && touched.nom && (
+                    <Text style={{color: theme.colors.error}}>
+                      {errors.nom}
+                    </Text>
+                  )}
+                </View>
+                <View style={styles.inputWrap}>
+                  <TextInput
+                    mode="outlined"
+                    label="Prémoms"
+                    autoCapitalize="none"
+                    value={values.prenoms}
+                    onChangeText={handleChange('prenoms')}
+                    style={styles.inputView}
+                    onBlur={handleBlur('prenoms')}
+                  />
+                  {errors.prenoms && touched.prenoms && (
+                    <Text style={{color: theme.colors.error}}>
+                      {errors.prenoms}
+                    </Text>
+                  )}
+                </View>
               </View>
-              <View>
-                <TextInput
-                  mode="outlined"
-                  label="Prénoms"
-                  autoCapitalize="none"
-                  value={values.prenoms}
-                  onChangeText={handleChange('prenoms')}
-                  style={styles.inputView}
-                  onBlur={handleBlur('prenoms')}
-                />
-                {errors.prenoms && touched.prenoms && (
-                  <Text style={{color: theme.colors.error}}>
-                    {errors.prenoms}
-                  </Text>
-                )}
-              </View>
-              <View>
-                <TextInput
-                  mode="outlined"
-                  label="Date de naissance (DD/MM/YYYY)"
-                  autoCapitalize="none"
-                  value={values.datenaissance}
-                  onChangeText={handleChange('datenaissance')}
-                  style={styles.inputView}
-                  onBlur={handleBlur('datenaissance')}
-                />
-                {errors.datenaissance && touched.datenaissance && (
-                  <Text style={{color: theme.colors.error}}>
-                    {errors.datenaissance}
-                  </Text>
-                )}
+              <View style={styles.row}>
+                <View style={styles.inputWrap}>
+                  <TextInput
+                    mode="outlined"
+                    label="Jour"
+                    keyboardType="decimal-pad"
+                    autoCapitalize="none"
+                    value={values.jour}
+                    onChangeText={handleChange('jour')}
+                    style={styles.inputView}
+                    onBlur={handleBlur('jour')}
+                  />
+                  {errors.jour && touched.jour && (
+                    <Text style={{color: theme.colors.error}}>
+                      {errors.jour}
+                    </Text>
+                  )}
+                </View>
+                <View style={styles.inputWrap}>
+                  <TextInput
+                    mode="outlined"
+                    label="Mois"
+                    keyboardType="decimal-pad"
+                    autoCapitalize="none"
+                    value={values.mois}
+                    onChangeText={handleChange('mois')}
+                    style={styles.inputView}
+                    onBlur={handleBlur('mois')}
+                  />
+                  {errors.mois && touched.mois && (
+                    <Text style={{color: theme.colors.error}}>
+                      {errors.mois}
+                    </Text>
+                  )}
+                </View>
+                <View style={styles.inputWrap}>
+                  <TextInput
+                    mode="outlined"
+                    label="Année"
+                    autoCapitalize="none"
+                    value={values.annee}
+                    keyboardType="decimal-pad"
+                    onChangeText={handleChange('annee')}
+                    style={styles.inputView}
+                    onBlur={handleBlur('annee')}
+                  />
+                </View>
               </View>
               <View>
                 <TextInput
@@ -215,8 +262,19 @@ const AddMember = () => {
                 style={styles.inputView}
                 onBlur={handleBlur('autre_contact')}
               />
+              <TextInput
+                mode="outlined"
+                label="Email (Facultatif)"
+                keyboardType="email-address"
+                placeholder="Email"
+                autoCapitalize="none"
+                value={values.email}
+                onChangeText={handleChange('email')}
+                style={styles.inputView}
+                onBlur={handleBlur('email')}
+              />
               <PaperSelect
-                label="Pays"
+                label="Pays (Facultatif)"
                 value={country.selectedList[0]?.value}
                 onSelection={(value: any) => {
                   setCountry({
@@ -226,6 +284,7 @@ const AddMember = () => {
                     error: '',
                   });
                 }}
+                textInputStyle={styles.select}
                 dialogTitle="Sélectionnez un pays"
                 activeUnderlineColor="transparent"
                 underlineColor="transparent"
@@ -252,6 +311,7 @@ const AddMember = () => {
                     error: '',
                   });
                 }}
+                textInputStyle={styles.select}
                 activeUnderlineColor="transparent"
                 underlineColor="transparent"
                 textInputMode="outlined"
@@ -278,7 +338,9 @@ const AddMember = () => {
                     error: '',
                   });
                 }}
+                textInputStyle={styles.select}
                 activeUnderlineColor="transparent"
+                textInputStyle={styles.select}
                 underlineColor="transparent"
                 textInputMode="outlined"
                 outlineColor={theme.colors.outline}
@@ -315,11 +377,7 @@ const AddMember = () => {
         </Formik>
         <Snackbar
           duration={3000}
-          action={{
-            label: 'Close',
-            onPress: () => onDismissSnackBar(),
-            labelStyle: {color: theme.colors.light},
-          }}
+          onIconPress={onDismissSnackBar}
           style={styles.snack}
           visible={visible}
           onDismiss={onDismissSnackBar}>
@@ -347,7 +405,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 20,
+    padding: 10,
   },
   inputView: {
     textAlign: 'auto',
@@ -382,6 +440,9 @@ const styles = StyleSheet.create({
   snack: {
     backgroundColor: theme.colors.snack,
     color: theme.colors.light,
+  },
+  select: {
+    marginTop: 9,
   },
 });
 

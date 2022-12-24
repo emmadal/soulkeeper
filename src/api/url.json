@@ -3,7 +3,8 @@
     "addMembre": "http://192.168.1.2:5000/add-membre",
     "pointage": "http://192.168.1.2:5000/add-pointage",
     "cultes": "http://192.168.1.2:5000/cultes",
-    "localites": "http://192.168.1.2:5000/localites",
+    "ville": "http://192.168.1.2:5000/villes",
     "commune": "http://192.168.1.2:5000/commune",
+    "pays": "http://192.168.1.2:5000/pays",
     "getUserByUsername": "http://192.168.1.2:5000/user"
 }

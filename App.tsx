@@ -60,8 +60,8 @@ const App = () => {
       if (res) {
         const req = await loginUser(res.username, res.password);
         const user = await getUserProfile(res.username, req?.token);
+        authContext.dispatch.restoreToken(req.token);
         authContext.dispatch.getUser(user);
-        authContext.dispatch.restoreToken(req?.token);
         SplashScreen.hide();
       } else {
         SplashScreen.hide();

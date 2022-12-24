@@ -1,26 +1,25 @@
-import {Entreprise} from '../types';
+import {Entreprise, Membres} from '../types';
 import * as API from './url.json';
 
 /**
  * Login user
  */
 export const loginUser = async (login: string, password: string) => {
-  try {
-    const params = {
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json',
-      },
-      body: JSON.stringify({login, password}),
-    };
-    const req = await fetch(API.login, params);
-    if (req.status === 200) {
-      const token = req.headers.get('www-authenticate');
-      const res = await req.json();
-      return {...res, token};
-    }
-  } catch (error) {
-    return error?.message;
+  const params = {
+    method: 'POST',
+    headers: {
+      'Content-type': 'application/json',
+    },
+    body: JSON.stringify({login, password}),
+  };
+  const req = await fetch(API.login, params);
+  if (req.status === 200) {
+    const token = req.headers.get('www-authenticate');
+    const res = await req.json();
+    return {...res, token};
+  } else {
+    const err = await req.json();
+    return err.message;
   }
 };
 
@@ -57,7 +56,7 @@ export const getCities = (token: string) => {
         Authorization: `Bearer ${token}`,
       },
     };
-    fetch(API.localites, params)
+    fetch(API.ville, params)
       .then(res => res.json())
       .then(e => resolve(e))
       .catch(err => reject(err));
@@ -77,6 +76,64 @@ export const getCommune = (token: string) => {
       },
     };
     fetch(API.commune, params)
+      .then(res => res.json())
+      .then(e => resolve(e))
+      .catch(err => reject(err));
+  });
+};
+
+/**
+ * Get All Cultes available
+ */
+export const getCultes = (token: string) => {
+  return new Promise((resolve, reject) => {
+    const params = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    fetch(API.cultes, params)
+      .then(res => res.json())
+      .then(e => resolve(e))
+      .catch(err => reject(err));
+  });
+};
+
+/**
+ * Get All Country
+ */
+export const getCountry = (token: string) => {
+  return new Promise((resolve, reject) => {
+    const params = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    fetch(API.pays, params)
+      .then(res => res.json())
+      .then(e => resolve(e))
+      .catch(err => reject(err));
+  });
+};
+
+/**
+ * Add member
+ */
+export const addMember = (data: Membres, token: string) => {
+  return new Promise((resolve, reject) => {
+    const params = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({...data}),
+    };
+    fetch(API.addMembre, params)
       .then(res => res.json())
       .then(e => resolve(e))
       .catch(err => reject(err));

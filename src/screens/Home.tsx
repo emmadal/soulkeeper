@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {StyleSheet, View, Platform, ScrollView} from 'react-native';
 import {FAB} from 'react-native-paper';
 import {PaperSelect} from 'react-native-paper-select';
@@ -7,21 +7,41 @@ import Icon from 'react-native-vector-icons/Feather';
 import theme from '../themes';
 import {useNavigation} from '@react-navigation/native';
 import {AuthContext} from '../context/AuthContext';
+import {getCultes} from '../api';
+import useRefreshToken from '../hooks/useRefreshToken';
 
 const Home = () => {
   const [inputDate, setInputDate] = React.useState<Date | undefined>(undefined);
   const navigation = useNavigation();
   const {state} = useContext(AuthContext);
-  const [gender, setGender] = useState<any>({
+  const token = useRefreshToken();
+
+  const [cultes, setCultes] = useState<any>({
     value: '',
-    list: [
-      {_id: '1', value: 'Culte du dimanche'},
-      {_id: '2', value: 'Cellule de priere'},
-      {_id: '3', value: "Culte d'enseignement"},
-    ],
+    list: [],
     selectedList: [],
     error: '',
   });
+
+  const handleCulte = useCallback(async () => {
+    try {
+      const arr = [];
+      const res = await getCultes(token || state.token);
+      // console.log(res);
+      if (res?.length) {
+        for (const cult of res) {
+          arr.push({_id: cult?.idculte, value: cult?.libelle});
+        }
+        setCultes({...cultes, list: [...arr]});
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  }, [cultes, state?.token, token]);
+
+  useEffect(() => {
+    handleCulte();
+  }, []);
 
   console.log('state: ', state);
 
@@ -34,10 +54,10 @@ const Home = () => {
         <View style={styles.dateView}>
           <PaperSelect
             label="Sélectionnez un culte"
-            value={gender.value}
+            value={cultes.value}
             onSelection={(value: any) => {
-              setGender({
-                ...gender,
+              setCultes({
+                ...cultes,
                 value: value.text,
                 selectedList: value.selectedList,
                 error: '',
@@ -49,11 +69,11 @@ const Home = () => {
             textInputMode="outlined"
             outlineColor={theme.colors.outline}
             activeOutlineColor={theme.colors.primary}
-            hideSearchBox={true}
+            hideSearchBox={false}
             multiEnable={false}
-            arrayList={[...gender.list]}
-            selectedArrayList={[...gender.selectedList]}
-            errorText={gender.error}
+            arrayList={[...cultes.list]}
+            selectedArrayList={[...cultes.selectedList]}
+            errorText={cultes.error}
             checkboxColor={theme.colors.primary}
             modalCloseButtonText="Fermer"
             modalDoneButtonText="Choisir"

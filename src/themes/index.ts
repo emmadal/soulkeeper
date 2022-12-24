@@ -15,7 +15,7 @@ const theme = {
     clouds: '#ecf0f1',
     text: '#000000',
     grey100: '#00000084',
-    snack: '#4d6e80',
+    snack: '#f15a22 ',
   },
 };
 

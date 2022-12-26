@@ -53,20 +53,14 @@ const Settings = () => {
           </Text>
           <Icon color={theme.colors.text} name="user" size={20} />
         </TouchableOpacity>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.optionContainer}
           onPress={() => navigation.navigate('Manual')}>
           <Text variant="titleMedium" style={{color: theme.colors.text}}>
             Manuel d'utilisation
           </Text>
           <Icon color={theme.colors.text} name="chevron-right" size={20} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.optionContainer} onPress={() => ''}>
-          <Text variant="titleMedium" style={{color: theme.colors.text}}>
-            Paramètres de messagerie
-          </Text>
-          <Icon color={theme.colors.text} name="chevron-right" size={20} />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <TouchableOpacity style={styles.optionContainer} onPress={openMailBox}>
           <Text variant="titleMedium" style={{color: theme.colors.text}}>
             Contactez-nous

@@ -2,7 +2,7 @@ import React, {useCallback, useState, useContext, useEffect} from 'react';
 import {ScrollView, View, StyleSheet, Alert} from 'react-native';
 import {Formik} from 'formik';
 import * as yup from 'yup';
-import {TextInput, Button, Text, Snackbar} from 'react-native-paper';
+import {TextInput, Button, Text} from 'react-native-paper';
 import theme from '../themes';
 import {PaperSelect} from 'react-native-paper-select';
 import Loader from '../components/Loader';
@@ -10,13 +10,13 @@ import * as regex from '../regex';
 import {getCities, getCommune, getCountry, addMember} from '../api';
 import {AuthContext} from '../context/AuthContext';
 import useRefreshToken from '../hooks/useRefreshToken';
+import {useNavigation} from '@react-navigation/native';
 
 const AddMember = () => {
-  const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [message, SetMessage] = useState('');
   const {state} = useContext(AuthContext);
   const token = useRefreshToken();
+  const navigation = useNavigation();
 
   const [country, setCountry] = useState<any>({
     value: '',
@@ -71,8 +71,6 @@ const AddMember = () => {
     retrieveDataFromServer();
   }, []);
 
-  const onDismissSnackBar = () => setVisible(false);
-
   const getDate = () => {
     const date = new Date().toLocaleDateString('fr');
     const splitDate = date?.split('/').reverse().join('-');
@@ -94,11 +92,20 @@ const AddMember = () => {
     const req = await addMember(data, token || state?.token);
     if (req?.status) {
       setLoading(false);
-      setVisible(!visible);
-      SetMessage(req?.message);
+      Alert.alert(
+        'Ajout de membre',
+        `${req?.message}`,
+        [
+          {
+            text: 'OK',
+            style: 'default',
+            onPress: () => navigation.goBack(),
+          },
+        ],
+        {cancelable: false},
+      );
     } else {
       setLoading(false);
-      setVisible(false);
       Alert.alert(req?.message);
     }
   };
@@ -148,7 +155,6 @@ const AddMember = () => {
             handleSubmit,
             errors,
             touched,
-            resetForm
           }) => (
             <View style={styles.content}>
               <View style={styles.row}>
@@ -375,14 +381,6 @@ const AddMember = () => {
             </View>
           )}
         </Formik>
-        <Snackbar
-          duration={3000}
-          onIconPress={onDismissSnackBar}
-          style={styles.snack}
-          visible={visible}
-          onDismiss={onDismissSnackBar}>
-          <Text style={{color: theme.colors.light}}>{message}</Text>
-        </Snackbar>
       </ScrollView>
     </View>
   );

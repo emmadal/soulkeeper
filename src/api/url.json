@@ -7,5 +7,6 @@
     "commune": "http://192.168.1.2:5000/commune",
     "pays": "http://192.168.1.2:5000/pays",
     "getUserByUsername": "http://192.168.1.2:5000/user",
-    "members": "http://192.168.1.2:5000/membres"
+    "members": "http://192.168.1.2:5000/membres",
+    "stats": "http://192.168.1.2:5000/stats"
 }

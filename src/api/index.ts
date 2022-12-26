@@ -178,3 +178,28 @@ export const addPointage = (data: Pointage[], token: string) => {
       .catch(err => reject(err));
   });
 };
+
+/**
+ * Get stats
+ */
+export const getStatistiques = (
+  date: string,
+  idculte: number,
+  identreprises: number | undefined,
+  token: string,
+) => {
+  return new Promise((resolve, reject) => {
+    const params = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({date, idculte, identreprises}),
+    };
+    fetch(API.stats, params)
+      .then(res => res.json())
+      .then(e => resolve(e))
+      .catch(err => reject(err));
+  });
+};

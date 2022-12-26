@@ -7,13 +7,15 @@ import Icon from 'react-native-vector-icons/Feather';
 import theme from '../themes';
 import {useNavigation} from '@react-navigation/native';
 import {AuthContext} from '../context/AuthContext';
-import {getCultes} from '../api';
+import {getCultes, getStatistiques} from '../api';
 import useRefreshToken from '../hooks/useRefreshToken';
+import ChartLegend from '../components/ChartLegend';
 
 const Home = () => {
   const [inputDate, setInputDate] = React.useState<Date | undefined>(undefined);
   const navigation = useNavigation();
   const {state} = useContext(AuthContext);
+  const [dataCharts, setDataCharts] = useState<any>([]);
   const token = useRefreshToken();
 
   const [cultes, setCultes] = useState<any>({
@@ -39,11 +41,34 @@ const Home = () => {
     }
   }, [cultes, state?.token, token]);
 
+  const getDate = (item: any) => {
+    const req = new Date(item).toLocaleDateString('fr');
+    const splitDate = req?.split('/').reverse().join('-');
+    return splitDate;
+  };
+
+  const fetchStats = useCallback(
+    async (d: any) => {
+      const idculte = cultes.selectedList[0]?._id;
+      const arr = [];
+      const rDate = getDate(d);
+      const res = await getStatistiques(
+        rDate,
+        idculte,
+        state?.user?.identreprises,
+        token || state?.token,
+      );
+      if (res) {
+        arr.push(res);
+      }
+      setDataCharts(res);
+    },
+    [cultes.selectedList, state?.token, state?.user?.identreprises, token],
+  );
+
   useEffect(() => {
     handleCulte();
   }, []);
-
-  console.log('state: ', state);
 
   return (
     <View style={styles.wrapper}>
@@ -64,6 +89,7 @@ const Home = () => {
               });
             }}
             dialogTitle="Sélectionnez un culte"
+            textInputStyle={styles.inputStyle}
             activeUnderlineColor="transparent"
             underlineColor="transparent"
             textInputMode="outlined"
@@ -87,7 +113,12 @@ const Home = () => {
             outlineColor={theme.colors.outline}
             value={inputDate}
             saveLabel="Choisir"
-            onChange={d => setInputDate(d)}
+            onChange={async d => {
+              setInputDate(d);
+              if (cultes?.selectedList?.length) {
+                await fetchStats(d);
+              }
+            }}
             underlineColor="transparent"
             underlineColorAndroid="transparent"
             inputMode="start"
@@ -95,6 +126,7 @@ const Home = () => {
             calendarIcon="calendar"
           />
         </View>
+        {dataCharts.total ? <ChartLegend dataCharts={dataCharts} /> : null}
         <FAB
           icon={() => (
             <Icon name="user-plus" color={theme.colors.light} size={24} />
@@ -103,7 +135,9 @@ const Home = () => {
           size="medium"
           color={theme.colors.light}
           style={[styles.fab, {backgroundColor: theme.colors.primary}]}
-          onPress={() => navigation.navigate('AddMember')}
+          onPress={() => {
+            navigation.navigate('AddMember');
+          }}
         />
       </ScrollView>
     </View>
@@ -122,13 +156,16 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    margin: 40,
+    margin: 20,
     right: 0,
     bottom: 0,
     borderRadius: 50,
   },
   dateView: {
     marginTop: 20,
+  },
+  inputStyle: {
+    textAlign: 'auto',
   },
 });
 

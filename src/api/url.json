@@ -6,5 +6,6 @@
     "ville": "http://192.168.1.2:5000/villes",
     "commune": "http://192.168.1.2:5000/commune",
     "pays": "http://192.168.1.2:5000/pays",
-    "getUserByUsername": "http://192.168.1.2:5000/user"
+    "getUserByUsername": "http://192.168.1.2:5000/user",
+    "members": "http://192.168.1.2:5000/membres"
 }

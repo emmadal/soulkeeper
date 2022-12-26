@@ -1,4 +1,4 @@
-import {Entreprise, Membres} from '../types';
+import {Entreprise, Membres, Pointage} from '../types';
 import * as API from './url.json';
 
 /**
@@ -134,6 +134,45 @@ export const addMember = (data: Membres, token: string) => {
       body: JSON.stringify({...data}),
     };
     fetch(API.addMembre, params)
+      .then(res => res.json())
+      .then(e => resolve(e))
+      .catch(err => reject(err));
+  });
+};
+
+/**
+ * get all members
+ */
+export const getMembers = (token: string, size: number, page: number) => {
+  return new Promise((resolve, reject) => {
+    const params = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    fetch(`${API.members}?page=${page}&size=${size}`, params)
+      .then(res => res.json())
+      .then(e => resolve(e))
+      .catch(err => reject(err));
+  });
+};
+
+/**
+ * Add Pointage
+ */
+export const addPointage = (data: Pointage[], token: string) => {
+  return new Promise((resolve, reject) => {
+    const params = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({pointage: data}),
+    };
+    fetch(API.pointage, params)
       .then(res => res.json())
       .then(e => resolve(e))
       .catch(err => reject(err));

@@ -14,7 +14,7 @@ export type Entreprise = {
   password: string;
   idlocalites?: number;
   description?: string;
-  dateenregistrement?: Date;
+  dateenregistrement?: string;
   login: string;
   expediteur?: string;
   role?: number;
@@ -46,7 +46,7 @@ export type Membres = {
  */
 export type Pointage = {
   idpointage?: number;
-  date: Date;
+  date: string;
   idmembres: number;
   idculte: number;
   Operateur?: string;

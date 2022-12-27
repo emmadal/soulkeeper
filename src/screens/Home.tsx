@@ -88,6 +88,8 @@ const Home = () => {
                 error: '',
               });
             }}
+            checkboxLabelStyle={{color: theme.colors.text}}
+            searchPlaceholder="Recherche"
             dialogTitle="Sélectionnez un culte"
             textInputStyle={styles.inputStyle}
             activeUnderlineColor="transparent"

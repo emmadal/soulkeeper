@@ -4,7 +4,7 @@ import React, {
   useContext,
   useState,
   useRef,
-  memo
+  memo,
 } from 'react';
 import {Text, Searchbar, FAB, Snackbar} from 'react-native-paper';
 import {
@@ -14,6 +14,7 @@ import {
   TouchableOpacity,
   View,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import {PaperSelect} from 'react-native-paper-select';
 import {getCultes, getMembers, addPointage} from '../api';
@@ -29,6 +30,10 @@ import ListFooter from '../components/ListFooter';
 const size = 100;
 const arrPointage: PointageTypes[] = [];
 
+const wait = (timeout: number) => {
+  return new Promise(resolve => setTimeout(resolve, timeout));
+};
+
 const Pointage = () => {
   const token = useRefreshToken();
   const {state} = useContext(AuthContext);
@@ -40,6 +45,7 @@ const Pointage = () => {
   const [loading, setLoading] = useState(false);
   const [members, setMembers] = useState<Membres[]>([]);
   const [pointageList, setPointageList] = useState<PointageTypes[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
   const [message, SetMessage] = useState('');
   const [cultes, setCultes] = useState<any>({
     value: '',
@@ -64,10 +70,30 @@ const Pointage = () => {
   }, [cultes, isFocus, state.token, token]);
 
   const fetchMembers = async () => {
-    const req = await getMembers(token || state?.token, size, page.current);
-    setMembers([...members, ...req?.membres]);
-    return req;
+    if (cultes?.selectedList.length) {
+      const req = await getMembers(token || state?.token, size, page.current);
+      setMembers([...members, ...req?.membres]);
+      return req;
+    }
   };
+
+  const onRefresh = useCallback(async () => {
+    try {
+      setRefreshing(true);
+      const req = await getMembers(token || state?.token, size, 0);
+      if (req) {
+        wait(2000).then(() => {
+          setRefreshing(false);
+          setMembers(req?.membres);
+        });
+      } else {
+        setRefreshing(false);
+      }
+    } catch (error) {
+      setRefreshing(false);
+      Alert.alert(error);
+    }
+  }, [state?.token, token]);
 
   useEffect(() => {
     handleCulte();
@@ -189,7 +215,7 @@ const Pointage = () => {
             error: '',
           });
         }}
-        // dialogTitle="Sélectionnez un évenement"
+        checkboxLabelStyle={{color: theme.colors.text}}
         activeUnderlineColor="transparent"
         underlineColor="transparent"
         textInputMode="outlined"
@@ -232,6 +258,16 @@ const Pointage = () => {
                 {renderIcon(item?.idmembres)}
               </TouchableOpacity>
             )}
+            refreshing={true}
+            refreshControl={
+              <RefreshControl
+                progressBackgroundColor={theme.colors.primary}
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={[theme.colors.light]}
+                tintColor={theme.colors.primary}
+              />
+            }
             onEndReachedThreshold={0.5}
             onEndReached={fetchMoreData}
             ListFooterComponent={<ListFooter loadMore={loadingMore} />}

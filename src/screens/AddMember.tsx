@@ -290,6 +290,8 @@ const AddMember = () => {
                     error: '',
                   });
                 }}
+                checkboxLabelStyle={{color: theme.colors.text}}
+                searchPlaceholder="Recherche"
                 textInputStyle={styles.select}
                 dialogTitle="Sélectionnez un pays"
                 activeUnderlineColor="transparent"
@@ -317,6 +319,8 @@ const AddMember = () => {
                     error: '',
                   });
                 }}
+                checkboxLabelStyle={{color: theme.colors.text}}
+                searchPlaceholder="Recherche"
                 textInputStyle={styles.select}
                 activeUnderlineColor="transparent"
                 underlineColor="transparent"
@@ -344,9 +348,10 @@ const AddMember = () => {
                     error: '',
                   });
                 }}
+                checkboxLabelStyle={{color: theme.colors.text}}
+                searchPlaceholder="Recherche"
                 textInputStyle={styles.select}
                 activeUnderlineColor="transparent"
-                textInputStyle={styles.select}
                 underlineColor="transparent"
                 textInputMode="outlined"
                 outlineColor={theme.colors.outline}
@@ -360,16 +365,24 @@ const AddMember = () => {
                 modalCloseButtonText="Fermer"
                 modalDoneButtonText="Choisir"
               />
-              <TextInput
-                mode="outlined"
-                label="Quartier"
-                placeholder="Quartier"
-                autoCapitalize="none"
-                value={values.quartier}
-                onChangeText={handleChange('quartier')}
-                style={styles.inputView}
-                onBlur={handleBlur('quartier')}
-              />
+              <View>
+                <TextInput
+                  mode="outlined"
+                  label="Quartier"
+                  placeholder="Quartier"
+                  autoCapitalize="none"
+                  value={values.quartier}
+                  onChangeText={handleChange('quartier')}
+                  style={styles.inputView}
+                  onBlur={handleBlur('quartier')}
+                />
+                {errors.quartier && touched.quartier && (
+                  <Text style={{color: theme.colors.error}}>
+                    {errors.quartier}
+                  </Text>
+                )}
+              </View>
+
               <Button
                 onPress={handleSubmit}
                 mode="outlined"
@@ -417,7 +430,7 @@ const styles = StyleSheet.create({
   btnSave: {
     alignSelf: 'center',
     borderColor: 'transparent',
-    margin: 15,
+    marginVertical: 20,
   },
   socialContainer: {
     flexDirection: 'row',

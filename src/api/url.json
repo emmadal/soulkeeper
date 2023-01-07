@@ -1,12 +1,12 @@
 {
-    "login": "http://mobileapi.bigdata-ci.com/login",
-    "addMembre": "http://mobileapi.bigdata-ci.com/add-membre",
-    "pointage": "http://mobileapi.bigdata-ci.com/add-pointage",
-    "cultes": "http://mobileapi.bigdata-ci.com/cultes",
-    "ville": "http://mobileapi.bigdata-ci.com/villes",
-    "commune": "http://mobileapi.bigdata-ci.com/commune",
-    "pays": "http://mobileapi.bigdata-ci.com/pays",
-    "getUserByUsername": "http://mobileapi.bigdata-ci.com/user",
-    "members": "http://mobileapi.bigdata-ci.com/membres",
-    "stats": "http://mobileapi.bigdata-ci.com/stats"
+    "login": "https://mobileapi.bigdata-ci.com/login",
+    "addMembre": "https://mobileapi.bigdata-ci.com/add-membre",
+    "pointage": "https://mobileapi.bigdata-ci.com/add-pointage",
+    "cultes": "https://mobileapi.bigdata-ci.com/cultes",
+    "ville": "https://mobileapi.bigdata-ci.com/villes",
+    "commune": "https://mobileapi.bigdata-ci.com/commune",
+    "pays": "https://mobileapi.bigdata-ci.com/pays",
+    "getUserByUsername": "https://mobileapi.bigdata-ci.com/user",
+    "members": "https://mobileapi.bigdata-ci.com/membres",
+    "stats": "https://mobileapi.bigdata-ci.com/stats"
 }

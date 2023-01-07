@@ -239,6 +239,8 @@ const Pointage = () => {
           <FlatList
             data={returnData()}
             keyExtractor={i => String(i.idmembres)}
+            removeClippedSubviews={true}
+            initialNumToRender={30}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.contentScroll}
             contentInsetAdjustmentBehavior="automatic"

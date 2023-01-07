@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useReducer, useCallback} from 'react';
+import React, {useEffect, useMemo, useReducer} from 'react';
 import SplashScreen from 'react-native-splash-screen';
 import {StyleSheet, StatusBar, Platform} from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
@@ -45,8 +45,8 @@ const App = () => {
          */
         signOut: async () => {
           try {
-            await keyChain.resetGenericPassword();
             dispatch({type: ActionKind.SIGN_OUT});
+            await keyChain.resetGenericPassword();
           } catch (error) {}
         },
       },
@@ -54,15 +54,17 @@ const App = () => {
     [state],
   );
 
-  const loadAsync = useCallback(async () => {
+  const loadAsync = async () => {
     try {
       const res = await keyChain.getGenericPassword();
       if (res) {
         const req = await loginUser(res.username, res.password);
-        const user = await getUserProfile(res.username, req?.token);
-        authContext.dispatch.restoreToken(req.token);
-        authContext.dispatch.getUser(user);
-        SplashScreen.hide();
+        if (req) {
+          const user = await getUserProfile(res.username, req?.token);
+          authContext.dispatch.restoreToken(req.token);
+          authContext.dispatch.getUser(user);
+          SplashScreen.hide();
+        }
       } else {
         SplashScreen.hide();
         authContext.dispatch.signOut();
@@ -71,7 +73,7 @@ const App = () => {
       SplashScreen.hide();
       authContext.dispatch.signOut();
     }
-  }, [authContext.dispatch]);
+  };
 
   useEffect(() => {
     // Get token localStorage and navigate to the authenticated screen

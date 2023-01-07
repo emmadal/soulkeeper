@@ -299,7 +299,7 @@ const AddMember = () => {
                 textInputMode="outlined"
                 outlineColor={theme.colors.outline}
                 activeOutlineColor={theme.colors.primary}
-                hideSearchBox={true}
+                hideSearchBox={false}
                 multiEnable={false}
                 arrayList={[...country.list]}
                 selectedArrayList={[...country.selectedList]}
@@ -454,6 +454,7 @@ const styles = StyleSheet.create({
   },
   select: {
     marginTop: 9,
+    textAlign: 'auto',
   },
 });
 

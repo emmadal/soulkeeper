@@ -21,13 +21,12 @@ import {getCultes, getMembers, addPointage} from '../api';
 import theme from '../themes';
 import useRefreshToken from '../hooks/useRefreshToken';
 import {AuthContext} from '../context/AuthContext';
-import {useIsFocused} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Feather';
 import {Membres, Pointage as PointageTypes} from '../types';
 import Loader from '../components/Loader';
 import ListFooter from '../components/ListFooter';
 
-const size = 100;
+const size = 50;
 const arrPointage: PointageTypes[] = [];
 
 const wait = (timeout: number) => {
@@ -37,7 +36,6 @@ const wait = (timeout: number) => {
 const Pointage = () => {
   const token = useRefreshToken();
   const {state} = useContext(AuthContext);
-  const isFocus = useIsFocused();
   const page = useRef(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [visible, setVisible] = useState(false);
@@ -57,25 +55,21 @@ const Pointage = () => {
   const onChangeSearch = (query: string) => setSearchQuery(query);
 
   const handleCulte = useCallback(async () => {
-    if (isFocus) {
-      const arr = [];
-      const res = await getCultes(token || state.token);
-      if (res?.length) {
-        for (const cult of res) {
-          arr.push({_id: cult?.idculte, value: cult?.libelle});
-        }
-        setCultes({...cultes, list: [...arr]});
+    const arr = [];
+    const res = await getCultes(token || state.token);
+    if (res?.length) {
+      for (const cult of res) {
+        arr.push({_id: cult?.idculte, value: cult?.libelle});
       }
+      setCultes({...cultes, list: [...arr]});
     }
-  }, [cultes, isFocus, state.token, token]);
+  }, [cultes, state.token, token]);
 
-  const fetchMembers = async () => {
-    if (cultes?.selectedList.length) {
-      const req = await getMembers(token || state?.token, size, page.current);
-      setMembers([...members, ...req?.membres]);
-      return req;
-    }
-  };
+  const fetchMembers = useCallback(async () => {
+    const req = await getMembers(token || state?.token, size, page.current);
+    setMembers([...members, ...req?.membres]);
+    return req;
+  }, [members, state?.token, token]);
 
   const onRefresh = useCallback(async () => {
     try {
@@ -180,7 +174,8 @@ const Pointage = () => {
           style: 'default',
           onPress: async () => {
             setLoading(!loading);
-            const req = await addPointage(pointageList, token || state?.token);
+            const dataPointage = [...new Set(pointageList)];
+            const req = await addPointage(dataPointage, token || state?.token);
             if (req?.status === 200) {
               setLoading(false);
               setVisible(!visible);

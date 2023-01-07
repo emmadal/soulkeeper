@@ -29,7 +29,6 @@ const Home = () => {
     try {
       const arr = [];
       const res = await getCultes(token || state.token);
-      // console.log(res);
       if (res?.length) {
         for (const cult of res) {
           arr.push({_id: cult?.idculte, value: cult?.libelle});
@@ -49,19 +48,19 @@ const Home = () => {
 
   const fetchStats = useCallback(
     async (d: any) => {
-      const idculte = cultes.selectedList[0]?._id;
-      const arr = [];
-      const rDate = getDate(d);
-      const res = await getStatistiques(
-        rDate,
-        idculte,
-        state?.user?.identreprises,
-        token || state?.token,
-      );
-      if (res) {
-        arr.push(res);
+      try {
+        const idculte = cultes.selectedList[0]?._id;
+        const rDate = getDate(d);
+        const data = {
+          date: rDate,
+          idculte,
+          identreprises: state?.user?.identreprises,
+        };
+        const res = await getStatistiques(token || state?.token, data);
+        setDataCharts(res);
+      } catch (error) {
+        console.log('Stats Error: ', error?.message);
       }
-      setDataCharts(res);
     },
     [cultes.selectedList, state?.token, state?.user?.identreprises, token],
   );
@@ -128,7 +127,9 @@ const Home = () => {
             calendarIcon="calendar"
           />
         </View>
-        {dataCharts.total ? <ChartLegend dataCharts={dataCharts} /> : null}
+        {dataCharts.total && cultes.selectedList.length ? (
+          <ChartLegend dataCharts={dataCharts} />
+        ) : null}
         <FAB
           icon={() => (
             <Icon name="user-plus" color={theme.colors.light} size={24} />

@@ -24,7 +24,6 @@ const ChartLegend = ({dataCharts}: any) => {
       <PieChart
         strokeColor="white"
         strokeWidth={1}
-        key={1}
         focusOnPress
         donut
         data={[

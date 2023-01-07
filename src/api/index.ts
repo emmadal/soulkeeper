@@ -162,7 +162,7 @@ export const getMembers = (token: string, size: number, page: number) => {
 /**
  * Add Pointage
  */
-export const addPointage = (data: Pointage[], token: string) => {
+export const addPointage = (data: Pointage, token: string) => {
   return new Promise((resolve, reject) => {
     const params = {
       method: 'POST',
@@ -182,12 +182,7 @@ export const addPointage = (data: Pointage[], token: string) => {
 /**
  * Get stats
  */
-export const getStatistiques = (
-  date: string,
-  idculte: number,
-  identreprises: number | undefined,
-  token: string,
-) => {
+export const getStatistiques = (token: string, data: any) => {
   return new Promise((resolve, reject) => {
     const params = {
       method: 'POST',
@@ -195,7 +190,7 @@ export const getStatistiques = (
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({date, idculte, identreprises}),
+      body: JSON.stringify({...data}),
     };
     fetch(API.stats, params)
       .then(res => res.json())

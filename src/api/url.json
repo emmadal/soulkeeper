@@ -1,12 +1,12 @@
 {
-    "login": "http://192.168.1.2:5000/login",
-    "addMembre": "http://192.168.1.2:5000/add-membre",
-    "pointage": "http://192.168.1.2:5000/add-pointage",
-    "cultes": "http://192.168.1.2:5000/cultes",
-    "ville": "http://192.168.1.2:5000/villes",
-    "commune": "http://192.168.1.2:5000/commune",
-    "pays": "http://192.168.1.2:5000/pays",
-    "getUserByUsername": "http://192.168.1.2:5000/user",
-    "members": "http://192.168.1.2:5000/membres",
-    "stats": "http://192.168.1.2:5000/stats"
+    "login": "http://mobileapi.bigdata-ci.com/login",
+    "addMembre": "http://mobileapi.bigdata-ci.com/add-membre",
+    "pointage": "http://mobileapi.bigdata-ci.com/add-pointage",
+    "cultes": "http://mobileapi.bigdata-ci.com/cultes",
+    "ville": "http://mobileapi.bigdata-ci.com/villes",
+    "commune": "http://mobileapi.bigdata-ci.com/commune",
+    "pays": "http://mobileapi.bigdata-ci.com/pays",
+    "getUserByUsername": "http://mobileapi.bigdata-ci.com/user",
+    "members": "http://mobileapi.bigdata-ci.com/membres",
+    "stats": "http://mobileapi.bigdata-ci.com/stats"
 }

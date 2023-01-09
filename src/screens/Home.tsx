@@ -1,6 +1,5 @@
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {StyleSheet, View, Platform, ScrollView} from 'react-native';
-import {FAB} from 'react-native-paper';
 import {PaperSelect} from 'react-native-paper-select';
 import {DatePickerInput} from 'react-native-paper-dates';
 import Icon from 'react-native-vector-icons/Feather';
@@ -130,18 +129,6 @@ const Home = () => {
         {dataCharts.total && cultes.selectedList.length ? (
           <ChartLegend dataCharts={dataCharts} />
         ) : null}
-        <FAB
-          icon={() => (
-            <Icon name="user-plus" color={theme.colors.light} size={24} />
-          )}
-          mode="flat"
-          size="medium"
-          color={theme.colors.light}
-          style={[styles.fab, {backgroundColor: theme.colors.primary}]}
-          onPress={() => {
-            navigation.navigate('AddMember');
-          }}
-        />
       </ScrollView>
     </View>
   );
@@ -156,13 +143,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flexGrow: 1,
-  },
-  fab: {
-    position: 'absolute',
-    margin: 20,
-    right: 0,
-    bottom: 0,
-    borderRadius: 50,
   },
   dateView: {
     marginTop: 20,

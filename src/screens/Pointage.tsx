@@ -6,7 +6,7 @@ import React, {
   useRef,
   memo,
 } from 'react';
-import {Text, Searchbar, FAB, Snackbar} from 'react-native-paper';
+import {Text, Searchbar, FAB, Snackbar, Button} from 'react-native-paper';
 import {
   StyleSheet,
   Platform,
@@ -15,6 +15,8 @@ import {
   View,
   Alert,
   RefreshControl,
+  Dimensions,
+  SafeAreaView,
 } from 'react-native';
 import {PaperSelect} from 'react-native-paper-select';
 import {getCultes, getMembers, addPointage} from '../api';
@@ -25,6 +27,7 @@ import Icon from 'react-native-vector-icons/Feather';
 import {Membres, Pointage as PointageTypes} from '../types';
 import Loader from '../components/Loader';
 import ListFooter from '../components/ListFooter';
+import {useNavigation} from '@react-navigation/native';
 
 const size = 50;
 const arrPointage: PointageTypes[] = [];
@@ -51,6 +54,7 @@ const Pointage = () => {
     selectedList: [],
     error: '',
   });
+  const navigation = useNavigation();
 
   const onChangeSearch = (query: string) => setSearchQuery(query);
 
@@ -197,8 +201,16 @@ const Pointage = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Loader loading={loading} />
+      <Button
+        onPress={() => navigation.navigate('AddMember')}
+        mode="outlined"
+        style={styles.btn}
+        buttonColor={theme.colors.primary}
+        textColor={theme.colors.light}>
+        Inscrire un membre
+      </Button>
       <PaperSelect
         label="Sélectionnez un évenement"
         value={cultes.value}
@@ -297,7 +309,7 @@ const Pointage = () => {
         onDismiss={onDismissSnackBar}>
         <Text style={{color: theme.colors.light}}>{message}</Text>
       </Snackbar>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -305,7 +317,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.clouds,
-    paddingTop: Platform.OS === 'ios' ? 20 : 30,
+    // paddingTop: Platform.OS === 'ios' ? 20 : 20,
   },
   viewSelect: {
     flex: 1,
@@ -318,7 +330,7 @@ const styles = StyleSheet.create({
   },
   textInputStyle: {
     textAlign: 'auto',
-    margin: 20,
+    margin: 15,
   },
   renderItem: {
     margin: 10,
@@ -348,6 +360,12 @@ const styles = StyleSheet.create({
   snack: {
     backgroundColor: theme.colors.snack,
     color: theme.colors.light,
+  },
+  btn: {
+    width: Dimensions.get('window').width / 2,
+    borderColor: 'transparent',
+    alignSelf: 'center',
+    marginTop: 15,
   },
 });
 export default memo(Pointage);

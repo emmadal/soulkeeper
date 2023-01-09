@@ -49,7 +49,7 @@ const TabBar = ({theme}: any) => {
         name="Pointage"
         component={Pointage}
         options={{
-          title: 'Faire un pointage',
+          title: 'Marquez votre présence',
           headerTitleStyle: {
             color: colors.text,
           },
@@ -66,7 +66,7 @@ const TabBar = ({theme}: any) => {
               color={focused ? colors.primary : colors.grey100}
             />
           ),
-          tabBarLabel: 'Pointage',
+          tabBarLabel: 'Présence',
           tabBarActiveTintColor: colors.primary,
           tabBarInactiveTintColor: colors.grey100,
         }}

@@ -389,7 +389,7 @@ const AddMember = () => {
                 style={styles.btnSave}
                 buttonColor={theme.colors.primary}
                 textColor={theme.colors.light}>
-                Ajouter un membre
+                Valider l'inscription
               </Button>
             </View>
           )}

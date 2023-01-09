@@ -22,7 +22,7 @@ const AuthStack = () => {
         name="AddMember"
         component={AddMember}
         options={{
-          title: 'Ajouter un membre',
+          title: "S'inscrire",
           headerTitleStyle: {
             color: theme.colors.text,
           },

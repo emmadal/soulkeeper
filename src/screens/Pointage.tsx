@@ -279,7 +279,7 @@ const Pointage = () => {
                 />
               )}
               customSize={40}
-              label="Confirmez"
+              label="Confirmer"
               mode="flat"
               size="small"
               color={theme.colors.light}

@@ -98,8 +98,9 @@ const Home = () => {
                 'Continuer'
               ) : (
                 <ActivityIndicator
-                  animating={loading}
+                  animating={true}
                   color={theme.colors.light}
+                  size="large"
                 />
               )}
             </Button>
@@ -152,7 +153,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   text: {
-    fontWeight: 'bold',
+    fontWeight: '700',
     textAlign: 'center',
     marginBottom: 5,
   },

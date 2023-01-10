@@ -11,12 +11,10 @@ import {
 } from 'react-native';
 import theme from '../themes';
 import {openComposer} from 'react-native-email-link';
-import {useNavigation} from '@react-navigation/native';
 import Loader from '../components/Loader';
 import {AuthContext} from '../context/AuthContext';
 
 const Settings = () => {
-  const navigation = useNavigation();
   const {dispatch} = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
 
@@ -45,14 +43,6 @@ const Settings = () => {
         showsHorizontalScrollIndicator={false}
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={styles.contentScroll}>
-        <TouchableOpacity
-          style={styles.optionContainer}
-          onPress={() => navigation.navigate('Profile')}>
-          <Text variant="titleMedium" style={{color: theme.colors.text}}>
-            Mon compte
-          </Text>
-          <Icon color={theme.colors.text} name="user" size={20} />
-        </TouchableOpacity>
         {/* <TouchableOpacity
           style={styles.optionContainer}
           onPress={() => navigation.navigate('Manual')}>

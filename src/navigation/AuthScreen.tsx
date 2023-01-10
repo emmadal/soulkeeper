@@ -3,9 +3,10 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import TabBar from './TabBar';
 import AddMember from '../screens/AddMember';
 import Profile from '../screens/Profile';
-
+import Statistiques from '../screens/Statistiques';
 import theme from '../themes';
 import Manual from '../screens/Manual';
+import Pointage from '../screens/Pointage';
 const Stack = createNativeStackNavigator();
 
 const AuthStack = () => {
@@ -30,10 +31,21 @@ const AuthStack = () => {
         }}
       />
       <Stack.Screen
-        name="Profile"
-        component={Profile}
+        name="Pointage"
+        component={Pointage}
         options={{
-          title: 'Mon compte',
+          title: 'Marquez votre présence',
+          headerTitleStyle: {
+            color: theme.colors.text,
+          },
+          headerTitleAlign: 'left',
+        }}
+      />
+      <Stack.Screen
+        name="Statistiques"
+        component={Statistiques}
+        options={{
+          title: 'Statistiques',
           headerTitleStyle: {
             color: theme.colors.text,
           },

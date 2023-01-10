@@ -5,7 +5,7 @@ import {withTheme} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Feather';
 import Home from '../screens/Home';
 import Settings from '../screens/Settings';
-import Pointage from '../screens/Pointage';
+import Profile from '../screens/Profile';
 
 const Tab = createBottomTabNavigator();
 
@@ -46,10 +46,10 @@ const TabBar = ({theme}: any) => {
         }}
       />
       <Tab.Screen
-        name="Pointage"
-        component={Pointage}
+        name="Profil"
+        component={Profile}
         options={{
-          title: 'Marquez votre présence',
+          title: 'Mon Profil',
           headerTitleStyle: {
             color: colors.text,
           },
@@ -61,12 +61,12 @@ const TabBar = ({theme}: any) => {
           },
           tabBarIcon: ({focused}) => (
             <Icon
-              name="edit-3"
+              name="user"
               size={22}
               color={focused ? colors.primary : colors.grey100}
             />
           ),
-          tabBarLabel: 'Présence',
+          tabBarLabel: 'Profil',
           tabBarActiveTintColor: colors.primary,
           tabBarInactiveTintColor: colors.grey100,
         }}

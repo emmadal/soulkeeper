@@ -1,154 +1,174 @@
-import React, {useCallback, useContext, useEffect, useState} from 'react';
-import {StyleSheet, View, Platform, ScrollView} from 'react-native';
-import {PaperSelect} from 'react-native-paper-select';
-import {DatePickerInput} from 'react-native-paper-dates';
-import Icon from 'react-native-vector-icons/Feather';
+import React, {useState} from 'react';
+import {
+  StyleSheet,
+  SafeAreaView,
+  TouchableOpacity,
+  Dimensions,
+} from 'react-native';
+import {
+  Button,
+  Dialog,
+  Portal,
+  TextInput,
+  ActivityIndicator,
+} from 'react-native-paper';
+import * as keyChain from 'react-native-keychain';
 import theme from '../themes';
 import {useNavigation} from '@react-navigation/native';
-import {AuthContext} from '../context/AuthContext';
-import {getCultes, getStatistiques} from '../api';
-import useRefreshToken from '../hooks/useRefreshToken';
-import ChartLegend from '../components/ChartLegend';
+import {Avatar, Text} from 'react-native-paper';
 
 const Home = () => {
-  const [inputDate, setInputDate] = React.useState<Date | undefined>(undefined);
+  const [visible, setVisible] = useState(false);
+  const [isView, setIsView] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState('');
+  const [password, setPassword] = useState('');
   const navigation = useNavigation();
-  const {state} = useContext(AuthContext);
-  const [dataCharts, setDataCharts] = useState<any>([]);
-  const token = useRefreshToken();
 
-  const [cultes, setCultes] = useState<any>({
-    value: '',
-    list: [],
-    selectedList: [],
-    error: '',
-  });
-
-  const handleCulte = useCallback(async () => {
+  const goToPage = async () => {
     try {
-      const arr = [];
-      const res = await getCultes(token || state.token);
-      if (res?.length) {
-        for (const cult of res) {
-          arr.push({_id: cult?.idculte, value: cult?.libelle});
+      setLoading(true);
+      const res = await keyChain.getGenericPassword();
+      setTimeout(() => {
+        if (res) {
+          if (res?.password === password) {
+            setLoading(false);
+            setVisible(false);
+            setErr('');
+            setIsView(false);
+            setPassword('');
+            navigation.navigate('Statistiques');
+          } else {
+            setLoading(false);
+            setErr('Mot de passe incorrect');
+          }
         }
-        setCultes({...cultes, list: [...arr]});
-      }
-    } catch (error) {
-      console.log(error.message);
-    }
-  }, [cultes, state?.token, token]);
-
-  const getDate = (item: any) => {
-    const req = new Date(item).toLocaleDateString('fr');
-    const splitDate = req?.split('/').reverse().join('-');
-    return splitDate;
+      }, 2000);
+    } catch (error) {}
   };
 
-  const fetchStats = useCallback(
-    async (d: any) => {
-      try {
-        const idculte = cultes.selectedList[0]?._id;
-        const rDate = getDate(d);
-        const data = {
-          date: rDate,
-          idculte,
-          identreprises: state?.user?.identreprises,
-        };
-        const res = await getStatistiques(token || state?.token, data);
-        setDataCharts(res);
-      } catch (error) {
-        console.log('Stats Error: ', error?.message);
-      }
-    },
-    [cultes.selectedList, state?.token, state?.user?.identreprises, token],
-  );
-
-  useEffect(() => {
-    handleCulte();
-  }, []);
+  const onDismiss = () => {
+    setVisible(false);
+    setErr('');
+    setIsView(false);
+  };
 
   return (
-    <View style={styles.wrapper}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={styles.content}>
-        <View style={styles.dateView}>
-          <PaperSelect
-            label="Sélectionnez un culte"
-            value={cultes.value}
-            onSelection={(value: any) => {
-              setCultes({
-                ...cultes,
-                value: value.text,
-                selectedList: value.selectedList,
-                error: '',
-              });
-            }}
-            checkboxLabelStyle={{color: theme.colors.text}}
-            searchPlaceholder="Recherche"
-            dialogTitle="Sélectionnez un culte"
-            textInputStyle={styles.inputStyle}
-            activeUnderlineColor="transparent"
-            underlineColor="transparent"
-            textInputMode="outlined"
-            outlineColor={theme.colors.outline}
-            activeOutlineColor={theme.colors.primary}
-            hideSearchBox={false}
-            multiEnable={false}
-            arrayList={[...cultes.list]}
-            selectedArrayList={[...cultes.selectedList]}
-            errorText={cultes.error}
-            checkboxColor={theme.colors.primary}
-            modalCloseButtonText="Fermer"
-            modalDoneButtonText="Choisir"
-          />
-        </View>
-        <View style={styles.dateView}>
-          <DatePickerInput
-            locale="fr"
-            label="Selectionnez un date"
-            activeOutlineColor={theme.colors.primary}
-            outlineColor={theme.colors.outline}
-            value={inputDate}
-            saveLabel="Choisir"
-            onChange={async d => {
-              setInputDate(d);
-              if (cultes?.selectedList?.length) {
-                await fetchStats(d);
+    <SafeAreaView style={styles.wrapper}>
+      <Portal>
+        <Dialog
+          style={styles.dialog}
+          visible={visible}
+          onDismiss={onDismiss}
+          dismissable={true}>
+          <Dialog.Title style={styles.dialogTitle}>
+            Mot de passe pour continuer
+          </Dialog.Title>
+          <Dialog.Content>
+            <TextInput
+              mode="outlined"
+              secureTextEntry={isView}
+              placeholderTextColor={theme.colors.grey100}
+              autoCapitalize="none"
+              value={password}
+              label="Mot de passe"
+              onChangeText={text => setPassword(text)}
+              right={
+                <TextInput.Icon
+                  icon={isView ? 'eye-slash' : 'eye'}
+                  iconColor={theme.colors.text}
+                  onPress={() => setIsView(!isView)}
+                />
               }
-            }}
-            underlineColor="transparent"
-            underlineColorAndroid="transparent"
-            inputMode="start"
-            mode="outlined"
-            calendarIcon="calendar"
-          />
-        </View>
-        {dataCharts.total && cultes.selectedList.length ? (
-          <ChartLegend dataCharts={dataCharts} />
-        ) : null}
-      </ScrollView>
-    </View>
+            />
+            {err.length ? (
+              <Text variant="labelLarge" style={styles.err}>
+                {err}
+              </Text>
+            ) : null}
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button
+              mode="outlined"
+              style={styles.btn}
+              buttonColor={theme.colors.primary}
+              textColor={theme.colors.light}
+              onPress={goToPage}>
+              {!loading ? (
+                'Continuer'
+              ) : (
+                <ActivityIndicator
+                  animating={loading}
+                  color={theme.colors.light}
+                />
+              )}
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+      <TouchableOpacity style={styles.block} onPress={() => setVisible(true)}>
+        <Avatar.Image
+          size={80}
+          source={require('../assets/image/line-chart.gif')}
+        />
+        <Text style={styles.text} variant="bodyLarge">
+          Statistiques
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.block}
+        onPress={() => navigation.navigate('Pointage')}>
+        <Avatar.Image size={80} source={require('../assets/image/book.gif')} />
+        <Text style={styles.text} variant="bodyLarge">
+          Marquez votre présence
+        </Text>
+      </TouchableOpacity>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: theme.colors.clouds,
-    paddingTop: Platform.OS === 'ios' ? 60 : 30,
+    backgroundColor: theme.colors.light,
     paddingHorizontal: 15,
-  },
-  content: {
-    flexGrow: 1,
+    justifyContent: 'center',
   },
   dateView: {
     marginTop: 20,
   },
   inputStyle: {
     textAlign: 'auto',
+  },
+  block: {
+    borderRadius: 10,
+    borderColor: theme.colors.grey100,
+    borderWidth: 3,
+    padding: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: Dimensions.get('window').width / 1.7,
+    marginVertical: 20,
+    alignSelf: 'center',
+  },
+  text: {
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 5,
+  },
+  dialogTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  dialog: {
+    backgroundColor: theme.colors.light,
+  },
+  btn: {
+    borderColor: 'transparent',
+  },
+  err: {
+    color: theme.colors.error,
+    fontWeight: 'bold',
   },
 });
 

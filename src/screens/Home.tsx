@@ -112,7 +112,7 @@ const Home = () => {
           source={require('../assets/image/line-chart.gif')}
         />
         <Text style={styles.text} variant="bodyLarge">
-          Statistiques
+          Consultez les Statistiques
         </Text>
       </TouchableOpacity>
       <TouchableOpacity

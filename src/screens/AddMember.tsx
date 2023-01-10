@@ -192,7 +192,7 @@ const AddMember = () => {
                 <View style={styles.inputWrap}>
                   <TextInput
                     mode="outlined"
-                    label="Prémoms"
+                    label="Prénoms"
                     autoCapitalize="none"
                     value={values.prenoms}
                     onChangeText={handleChange('prenoms')}

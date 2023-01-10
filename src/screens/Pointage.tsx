@@ -6,10 +6,9 @@ import React, {
   useRef,
   memo,
 } from 'react';
-import {Text, Searchbar, FAB, Snackbar, Button} from 'react-native-paper';
+import {Text, Searchbar, Snackbar, Button} from 'react-native-paper';
 import {
   StyleSheet,
-  Platform,
   FlatList,
   TouchableOpacity,
   View,
@@ -30,7 +29,7 @@ import ListFooter from '../components/ListFooter';
 import {useNavigation} from '@react-navigation/native';
 
 const size = 50;
-const arrPointage: PointageTypes[] = [];
+// const arrPointage: PointageTypes[] = [];
 
 const wait = (timeout: number) => {
   return new Promise(resolve => setTimeout(resolve, timeout));
@@ -45,7 +44,7 @@ const Pointage = () => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [loading, setLoading] = useState(false);
   const [members, setMembers] = useState<Membres[]>([]);
-  const [pointageList, setPointageList] = useState<PointageTypes[]>([]);
+  const [pointageList, setPointageList] = useState<PointageTypes | null>();
   const [refreshing, setRefreshing] = useState(false);
   const [message, SetMessage] = useState('');
   const [cultes, setCultes] = useState<any>({
@@ -132,27 +131,26 @@ const Pointage = () => {
     return members;
   };
 
-  const handlePointage = (idmembres: number) => {
-    const isExist = arrPointage.some(i => i.idmembres === idmembres);
-    if (!isExist) {
-      const data = {
-        date: getDate(),
-        idmembres,
-        idculte: cultes?.selectedList[0]?._id,
-        identreprises: state.user.identreprises ?? 0,
-      };
-      arrPointage.push(data);
-      setPointageList([...pointageList, ...arrPointage]);
-    } else {
-      const dataIndex = arrPointage.findIndex(i => i.idmembres === idmembres);
-      arrPointage.splice(dataIndex, 1);
-      setPointageList([...arrPointage]);
-    }
-  };
+  // const handlePointage = (idmembres: number) => {
+  //   const isExist = arrPointage.some(i => i.idmembres === idmembres);
+  //   if (!isExist) {
+  //     const data = {
+  //       date: getDate(),
+  //       idmembres,
+  //       idculte: cultes?.selectedList[0]?._id,
+  //       identreprises: state.user.identreprises ?? 0,
+  //     };
+  //     arrPointage.push(data);
+  //     setPointageList([...pointageList, ...arrPointage]);
+  //   } else {
+  //     const dataIndex = arrPointage.findIndex(i => i.idmembres === idmembres);
+  //     arrPointage.splice(dataIndex, 1);
+  //     setPointageList([...arrPointage]);
+  //   }
+  // };
 
-  const renderIcon = (item: number | undefined) => {
-    const isExist = pointageList.some(i => i.idmembres === item);
-    if (isExist) {
+  const renderIcon = (idmembres: number | undefined) => {
+    if (idmembres === pointageList?.idmembres) {
       return (
         <Icon name="check-circle" color={theme.colors.success} size={20} />
       );
@@ -163,33 +161,39 @@ const Pointage = () => {
 
   const onDismissSnackBar = () => setVisible(false);
 
-  const sendPointage = () => {
+  const sendPointage = (pointage: any) => {
+    setPointageList(pointage);
     Alert.alert(
       'Pointage',
       'Confirmation du pointage',
       [
         {
           text: 'Annuler',
-          style: 'destructive',
-          onPress: () => setPointageList([]),
+          style: 'cancel',
+          onPress: () => setPointageList(null),
         },
         {
           text: 'Confirmer',
           style: 'default',
           onPress: async () => {
+            const data = {
+              date: getDate(),
+              idmembres: pointage?.idmembres,
+              idculte: cultes?.selectedList[0]?._id,
+              identreprises: state.user.identreprises ?? 0,
+            };
             setLoading(!loading);
-            const dataPointage = [...new Set(pointageList)];
-            const req = await addPointage(dataPointage, token || state?.token);
+            const req = await addPointage(data, token || state?.token);
             if (req?.status === 200) {
               setLoading(false);
               setVisible(!visible);
               SetMessage(req?.message);
-              setPointageList([]);
+              setPointageList(null);
             } else {
               setLoading(false);
               setVisible(false);
+              setPointageList(null);
               Alert.alert(req?.message);
-              setPointageList([]);
             }
           },
         },
@@ -258,7 +262,7 @@ const Pointage = () => {
             contentInsetAdjustmentBehavior="automatic"
             renderItem={({item}) => (
               <TouchableOpacity
-                onPress={() => handlePointage(item.idmembres ?? 0)}
+                onPress={() => sendPointage(item)}
                 key={item.idmembres}
                 style={styles.renderItem}>
                 <Text variant="bodyLarge" style={styles.title}>
@@ -281,7 +285,7 @@ const Pointage = () => {
             onEndReached={fetchMoreData}
             ListFooterComponent={<ListFooter loadMore={loadingMore} />}
           />
-          {pointageList.length ? (
+          {/* {pointageList.length ? (
             <FAB
               icon={() => (
                 <Icon
@@ -298,7 +302,7 @@ const Pointage = () => {
               style={[styles.fab, {backgroundColor: theme.colors.primary}]}
               onPress={sendPointage}
             />
-          ) : null}
+          ) : null} */}
         </View>
       ) : null}
       <Snackbar

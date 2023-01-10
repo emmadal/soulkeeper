@@ -1,6 +1,7 @@
 import React, {useContext, useState, useEffect, useCallback} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {PaperSelect} from 'react-native-paper-select';
+import {Text} from 'react-native-paper';
 import {DatePickerInput} from 'react-native-paper-dates';
 import theme from '../themes';
 import {AuthContext} from '../context/AuthContext';
@@ -68,6 +69,9 @@ const Statistiques = () => {
   return (
     <View style={styles.container}>
       <View style={styles.dateView}>
+        <Text variant="titleMedium" style={styles.title}>
+          Pour afficher les Statistiques, Veuillez choisir une Date et un Culte
+        </Text>
         <PaperSelect
           label="Sélectionnez un culte"
           value={cultes.value}
@@ -131,6 +135,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.clouds,
     paddingHorizontal: 16,
+  },
+  title: {
+    textAlign: 'center',
+    marginVertical: 20,
+    fontWeight: 'bold',
   },
   dateView: {
     marginTop: 20,

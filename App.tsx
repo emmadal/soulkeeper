@@ -113,4 +113,3 @@ const styles = StyleSheet.create({
 });
 
 export default App;
-// https://mobileapi.bigdata-ci.com

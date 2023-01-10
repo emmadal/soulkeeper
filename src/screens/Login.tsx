@@ -25,18 +25,23 @@ const Login = () => {
   const handleViewPassword = () => setIsView(!isView);
 
   const handleSignin = async (values: any) => {
-    setLoading(!loading);
-    const res = await loginUser(values.login, values.password);
-    if (res?.role && res?.login) {
-      const {token, ...rest} = res;
-      await keyChain.setGenericPassword(values.login, values.password);
-      // update global state while dispatch action
-      dispatch?.restoreToken(token);
-      dispatch?.getUser(rest);
+    try {
+      setLoading(!loading);
+      const res = await loginUser(values.login, values.password);
+      if (res?.role && res?.login) {
+        const {token, ...rest} = res;
+        await keyChain.setGenericPassword(values.login, values.password);
+        // update global state while dispatch action
+        dispatch?.restoreToken(token);
+        dispatch?.getUser(rest);
+        setLoading(false);
+      } else {
+        setLoading(false);
+        Alert.alert(res);
+      }
+    } catch (error) {
       setLoading(false);
-    } else {
-      setLoading(false);
-      Alert.alert(res);
+      Alert.alert(error?.message);
     }
   };
 

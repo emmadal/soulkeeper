@@ -255,22 +255,6 @@ const AddMember = () => {
                 </View>
               </View>
               <View>
-                {/* <TextInput
-                  mode="outlined"
-                  label="Contact"
-                  keyboardType="phone-pad"
-                  placeholder="+225 xxx xxx xxx"
-                  autoCapitalize="none"
-                  value={values.contact}
-                  onChangeText={handleChange('contact')}
-                  style={styles.inputView}
-                  onBlur={handleBlur('contact')}
-                />
-                {errors.contact && touched.contact && (
-                  <Text style={{color: theme.colors.error}}>
-                    {errors.contact}
-                  </Text>
-                )} */}
                 <PhoneInput
                   ref={phoneInput}
                   defaultValue={value}
@@ -280,16 +264,14 @@ const AddMember = () => {
                   containerStyle={styles.phoneContainerStyle}
                   onChangeText={text => setValue(text)}
                   onChangeFormattedText={text => setFormattedValue(text)}
-                  textContainerStyle={{
-                    backgroundColor: theme.colors.light,
-                  }}
+                  textContainerStyle={styles.textContainerStyle}
                 />
-                {!valid && value.length ? (
-                  <Text style={{color: theme.colors.error}}>
-                    Entrez un contact valide suivi du code indicatif
-                  </Text>
-                ) : null}
               </View>
+              {!valid && value.length ? (
+                <Text style={{color: theme.colors.error}}>
+                  Entrez un contact valide suivi du code indicatif
+                </Text>
+              ) : null}
               <TextInput
                 mode="outlined"
                 label="Autre contact (Facultatif)"
@@ -455,8 +437,13 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.outline,
     borderWidth: 1,
     width: '100%',
+    paddingVertical: 0,
     marginVertical: 8,
     backgroundColor: theme.colors.light,
+  },
+  textContainerStyle: {
+    backgroundColor: theme.colors.light,
+    paddingVertical: 0,
   },
   inputView: {
     textAlign: 'auto',

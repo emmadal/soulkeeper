@@ -164,8 +164,8 @@ const Pointage = () => {
   const sendPointage = (pointage: any) => {
     setPointageList(pointage);
     Alert.alert(
-      'Pointage',
-      'Confirmation du pointage',
+      'Présence',
+      'Voulez vous confirmez votre présence',
       [
         {
           text: 'Annuler',

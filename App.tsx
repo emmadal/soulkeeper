@@ -76,7 +76,6 @@ const App = () => {
   };
 
   useEffect(() => {
-    // Get token localStorage and navigate to the authenticated screen
     loadAsync();
   }, []);
 
@@ -100,7 +99,6 @@ const App = () => {
         <NavigationContainer>
           <GestureHandlerRootView style={styles.wrapper}>
             {state?.isSignout ? <Onboarding /> : <AuthStack />}
-            {/* <AuthStack /> */}
           </GestureHandlerRootView>
         </NavigationContainer>
       </AuthContext.Provider>
@@ -115,3 +113,4 @@ const styles = StyleSheet.create({
 });
 
 export default App;
+// https://mobileapi.bigdata-ci.com

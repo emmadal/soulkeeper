@@ -1,4 +1,10 @@
-import React, {useCallback, useState, useContext, useEffect} from 'react';
+import React, {
+  useCallback,
+  useState,
+  useContext,
+  useEffect,
+  useRef,
+} from 'react';
 import {ScrollView, View, StyleSheet, Alert} from 'react-native';
 import {Formik} from 'formik';
 import * as yup from 'yup';
@@ -11,12 +17,17 @@ import {getCities, getCommune, getCountry, addMember} from '../api';
 import {AuthContext} from '../context/AuthContext';
 import useRefreshToken from '../hooks/useRefreshToken';
 import {useNavigation} from '@react-navigation/native';
+import PhoneInput from 'react-native-phone-number-input';
 
 const AddMember = () => {
   const [loading, setLoading] = useState(false);
   const {state} = useContext(AuthContext);
   const token = useRefreshToken();
   const navigation = useNavigation();
+  const [value, setValue] = useState('');
+  const [formattedValue, setFormattedValue] = useState('');
+  const [valid, setValid] = useState(false);
+  const phoneInput = useRef<PhoneInput>(null);
 
   const [country, setCountry] = useState<any>({
     value: '',
@@ -88,6 +99,7 @@ const AddMember = () => {
       idville: town?.selectedList[0]?._id,
       dateenregistre: getDate(),
       identreprises: state?.user?.identreprises,
+      contact: formattedValue,
     };
     const req = await addMember(data, token || state?.token);
     if (req?.status) {
@@ -110,6 +122,11 @@ const AddMember = () => {
     }
   };
 
+  useEffect(() => {
+    const checkValid = phoneInput.current?.isValidNumber(value);
+    setValid(checkValid ? checkValid : false);
+  }, [value]);
+
   return (
     <View style={styles.container}>
       <Loader loading={loading} />
@@ -125,7 +142,7 @@ const AddMember = () => {
             jour: '',
             mois: '',
             annee: '',
-            contact: '',
+            // contact: '',
             autre_contact: '',
             email: '',
             quartier: '',
@@ -135,17 +152,15 @@ const AddMember = () => {
             prenoms: yup.string().required('Entrez votre Prénoms'),
             mois: yup
               .string()
-              .matches(regex.month, 'Mois de naissance invalide')
-              .required('Mois de naissance invalide'),
+              .matches(regex.month, 'Mois de naissance')
+              .required('Mois de naissance'),
             jour: yup
               .string()
-              .matches(regex.day, 'Jour de naissance invalide')
-              .required('Jour de naissance invalide'),
-            contact: yup
+              .matches(regex.day, 'Jour de naissance')
+              .required('Jour de naissance'),
+            quartier: yup
               .string()
-              .matches(regex.phoneNumber, 'Entrez un contact valide')
-              .required('Entrez un contact valide'),
-            quartier: yup.string().required('Entrez le Quartier'),
+              .required("Entrez votre quartier d'habitation"),
           })}
           onSubmit={values => saveMember(values)}>
           {({
@@ -229,7 +244,7 @@ const AddMember = () => {
                 <View style={styles.inputWrap}>
                   <TextInput
                     mode="outlined"
-                    label="Année"
+                    label="Année (Facultatif)"
                     autoCapitalize="none"
                     value={values.annee}
                     keyboardType="decimal-pad"
@@ -240,7 +255,7 @@ const AddMember = () => {
                 </View>
               </View>
               <View>
-                <TextInput
+                {/* <TextInput
                   mode="outlined"
                   label="Contact"
                   keyboardType="phone-pad"
@@ -255,13 +270,31 @@ const AddMember = () => {
                   <Text style={{color: theme.colors.error}}>
                     {errors.contact}
                   </Text>
-                )}
+                )} */}
+                <PhoneInput
+                  ref={phoneInput}
+                  defaultValue={value}
+                  placeholder="Entrez votre Contact"
+                  defaultCode="CI"
+                  layout="first"
+                  containerStyle={styles.phoneContainerStyle}
+                  onChangeText={text => setValue(text)}
+                  onChangeFormattedText={text => setFormattedValue(text)}
+                  textContainerStyle={{
+                    backgroundColor: theme.colors.light,
+                  }}
+                />
+                {!valid && value.length ? (
+                  <Text style={{color: theme.colors.error}}>
+                    Entrez un contact valide suivi du code indicatif
+                  </Text>
+                ) : null}
               </View>
               <TextInput
                 mode="outlined"
                 label="Autre contact (Facultatif)"
                 keyboardType="phone-pad"
-                placeholder="+225 xxx xxx xxx"
+                placeholder="xxx xxx xxx"
                 autoCapitalize="none"
                 value={values.autre_contact}
                 onChangeText={handleChange('autre_contact')}
@@ -418,6 +451,13 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
   },
+  phoneContainerStyle: {
+    borderColor: theme.colors.outline,
+    borderWidth: 1,
+    width: '100%',
+    marginVertical: 8,
+    backgroundColor: theme.colors.light,
+  },
   inputView: {
     textAlign: 'auto',
     marginVertical: 8,
@@ -455,6 +495,10 @@ const styles = StyleSheet.create({
   select: {
     marginTop: 9,
     textAlign: 'auto',
+  },
+  affix: {
+    // marginRight: -17,
+    color: theme.colors.text,
   },
 });
 

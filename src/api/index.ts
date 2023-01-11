@@ -170,7 +170,7 @@ export const addPointage = (data: Pointage, token: string) => {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({pointage: data}),
+      body: JSON.stringify({...data}),
     };
     fetch(API.pointage, params)
       .then(res => res.json())

@@ -180,11 +180,11 @@ const Pointage = () => {
               date: getDate(),
               idmembres: pointage?.idmembres,
               idculte: cultes?.selectedList[0]?._id,
-              identreprises: state.user.identreprises ?? 0,
+              identreprises: state.user.identreprises,
             };
             setLoading(!loading);
             const req = await addPointage(data, token || state?.token);
-            if (req?.status === 200) {
+            if (req?.status) {
               setLoading(false);
               setVisible(!visible);
               SetMessage(req?.message);
@@ -362,8 +362,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
   snack: {
-    backgroundColor: theme.colors.snack,
-    color: theme.colors.light,
+    backgroundColor: theme.colors.success,
   },
   btn: {
     width: Dimensions.get('window').width / 2,

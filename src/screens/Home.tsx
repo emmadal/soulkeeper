@@ -5,13 +5,7 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
-import {
-  Button,
-  Dialog,
-  Portal,
-  TextInput,
-  ActivityIndicator,
-} from 'react-native-paper';
+import {Button, Dialog, Portal, TextInput} from 'react-native-paper';
 import * as keyChain from 'react-native-keychain';
 import theme from '../themes';
 import {useNavigation} from '@react-navigation/native';
@@ -27,7 +21,7 @@ const Home = () => {
 
   const goToPage = async () => {
     try {
-      setLoading(true);
+      setLoading(!loading);
       const res = await keyChain.getGenericPassword();
       setTimeout(() => {
         if (res) {
@@ -44,7 +38,9 @@ const Home = () => {
           }
         }
       }, 2000);
-    } catch (error) {}
+    } catch (error) {
+      setLoading(false);
+    }
   };
 
   const onDismiss = () => {
@@ -90,19 +86,12 @@ const Home = () => {
           <Dialog.Actions>
             <Button
               mode="outlined"
+              loading={loading}
               style={styles.btn}
               buttonColor={theme.colors.primary}
               textColor={theme.colors.light}
               onPress={goToPage}>
-              {!loading ? (
-                'Continuer'
-              ) : (
-                <ActivityIndicator
-                  animating={true}
-                  color={theme.colors.light}
-                  size="large"
-                />
-              )}
+              Continuer
             </Button>
           </Dialog.Actions>
         </Dialog>
@@ -165,7 +154,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.light,
   },
   btn: {
-    borderColor: 'transparent',
+    borderColor: theme.colors.primary,
   },
   err: {
     color: theme.colors.error,

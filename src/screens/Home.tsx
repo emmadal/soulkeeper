@@ -1,9 +1,11 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
   Dimensions,
+  BackHandler,
+  Alert
 } from 'react-native';
 import {Button, Dialog, Portal, TextInput} from 'react-native-paper';
 import * as keyChain from 'react-native-keychain';
@@ -48,6 +50,25 @@ const Home = () => {
     setErr('');
     setIsView(false);
   };
+
+  useEffect(() => {
+    const backAction = () => {
+      Alert.alert('Soul Keeper', "Voulez vous quitter l'application?", [
+        {
+          text: 'Annuler',
+          onPress: () => null,
+          style: 'cancel',
+        },
+        {text: 'Quittez', onPress: () => BackHandler.exitApp()},
+      ]);
+      return true;
+    };
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+    return () => backHandler.remove();
+  }, []);
 
   return (
     <SafeAreaView style={styles.wrapper}>
@@ -107,7 +128,7 @@ const Home = () => {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.block}
-        onPress={() => navigation.navigate('Pointage')}>
+        onPress={() => navigation.navigate('ChooseCulte')}>
         <Avatar.Image size={80} source={require('../assets/image/book.gif')} />
         <Text style={styles.text} variant="bodyLarge">
           Marquez votre présence

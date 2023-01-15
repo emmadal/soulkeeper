@@ -6,7 +6,16 @@ import React, {
   useRef,
   memo,
 } from 'react';
-import {Text, Searchbar, Snackbar, Button} from 'react-native-paper';
+import {
+  Text,
+  Searchbar,
+  Snackbar,
+  Button,
+  Dialog,
+  TextInput,
+  Portal,
+} from 'react-native-paper';
+import * as keyChain from 'react-native-keychain';
 import {
   StyleSheet,
   FlatList,
@@ -16,9 +25,9 @@ import {
   RefreshControl,
   Dimensions,
   SafeAreaView,
+  BackHandler,
 } from 'react-native';
-import {PaperSelect} from 'react-native-paper-select';
-import {getCultes, getMembers, addPointage} from '../api';
+import {getMembers, addPointage} from '../api';
 import theme from '../themes';
 import useRefreshToken from '../hooks/useRefreshToken';
 import {AuthContext} from '../context/AuthContext';
@@ -29,48 +38,36 @@ import ListFooter from '../components/ListFooter';
 import {useNavigation} from '@react-navigation/native';
 
 const size = 50;
-// const arrPointage: PointageTypes[] = [];
 
 const wait = (timeout: number) => {
   return new Promise(resolve => setTimeout(resolve, timeout));
 };
 
-const Pointage = () => {
+const Pointage = ({route}) => {
   const token = useRefreshToken();
   const {state} = useContext(AuthContext);
   const page = useRef(0);
+  const [password, setPassword] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [visibleModal, setVisibleModal] = useState(false);
+  const [isView, setIsView] = useState(true);
+  const [err, setErr] = useState('');
   const [visible, setVisible] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingPortal, setLoadingPortal] = useState(false);
   const [members, setMembers] = useState<Membres[]>([]);
   const [pointageList, setPointageList] = useState<PointageTypes | null>();
   const [refreshing, setRefreshing] = useState(false);
   const [message, SetMessage] = useState('');
-  const [cultes, setCultes] = useState<any>({
-    value: '',
-    list: [],
-    selectedList: [],
-    error: '',
-  });
   const navigation = useNavigation();
 
   const onChangeSearch = (query: string) => setSearchQuery(query);
 
-  const handleCulte = useCallback(async () => {
-    const arr = [];
-    const res = await getCultes(token || state.token);
-    if (res?.length) {
-      for (const cult of res) {
-        arr.push({_id: cult?.idculte, value: cult?.libelle});
-      }
-      setCultes({...cultes, list: [...arr]});
-    }
-  }, [cultes, state.token, token]);
-
   const fetchMembers = useCallback(async () => {
     const req = await getMembers(token || state?.token, size, page.current);
-    setMembers([...members, ...req?.membres]);
+    const result = [...new Set([...members, ...req?.membres])];
+    setMembers(result);
     return req;
   }, [members, state?.token, token]);
 
@@ -93,11 +90,19 @@ const Pointage = () => {
   }, [state?.token, token]);
 
   useEffect(() => {
-    handleCulte();
+    fetchMembers();
   }, []);
 
   useEffect(() => {
-    fetchMembers();
+    const backAction = () => {
+      setVisibleModal(!visibleModal);
+      return true;
+    };
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+    return () => backHandler.remove();
   }, []);
 
   const getDate = () => {
@@ -114,7 +119,8 @@ const Pointage = () => {
       setLoadingMore(false);
       return;
     } else {
-      setMembers([...members, ...response?.membres]);
+      const res = [...new Set([...members, ...response?.membres])];
+      setMembers(res);
     }
     setLoadingMore(false);
   };
@@ -124,30 +130,15 @@ const Pointage = () => {
       const filterData = members.filter(
         i =>
           i.nom.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          i.prenoms.toLowerCase().includes(searchQuery.toLowerCase()),
+          i.prenoms.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          `${i.nom} ${i.prenoms}`
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()),
       );
       return filterData;
     }
     return members;
   };
-
-  // const handlePointage = (idmembres: number) => {
-  //   const isExist = arrPointage.some(i => i.idmembres === idmembres);
-  //   if (!isExist) {
-  //     const data = {
-  //       date: getDate(),
-  //       idmembres,
-  //       idculte: cultes?.selectedList[0]?._id,
-  //       identreprises: state.user.identreprises ?? 0,
-  //     };
-  //     arrPointage.push(data);
-  //     setPointageList([...pointageList, ...arrPointage]);
-  //   } else {
-  //     const dataIndex = arrPointage.findIndex(i => i.idmembres === idmembres);
-  //     arrPointage.splice(dataIndex, 1);
-  //     setPointageList([...arrPointage]);
-  //   }
-  // };
 
   const renderIcon = (idmembres: number | undefined) => {
     if (idmembres === pointageList?.idmembres) {
@@ -179,7 +170,7 @@ const Pointage = () => {
             const data = {
               date: getDate(),
               idmembres: pointage?.idmembres,
-              idculte: cultes?.selectedList[0]?._id,
+              idculte: route?.params?.idculte,
               identreprises: state.user.identreprises,
             };
             setLoading(!loading);
@@ -204,9 +195,84 @@ const Pointage = () => {
     );
   };
 
+  const onDismissModal = () => {
+    setVisibleModal(false);
+    setErr('');
+    setIsView(false);
+  };
+
+  const goToPage = async () => {
+    try {
+      setLoadingPortal(!loadingPortal);
+      const res = await keyChain.getGenericPassword();
+      setTimeout(() => {
+        if (res) {
+          if (res?.password === password) {
+            setLoadingPortal(false);
+            setVisibleModal(false);
+            setErr('');
+            setIsView(false);
+            setPassword('');
+            navigation.goBack();
+          } else {
+            setLoadingPortal(false);
+            setErr('Mot de passe incorrect');
+          }
+        }
+      }, 2000);
+    } catch (error) {
+      setLoading(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Loader loading={loading} />
+      <Portal>
+        <Dialog
+          style={styles.dialog}
+          visible={visibleModal}
+          onDismiss={onDismissModal}
+          dismissable={true}>
+          <Dialog.Title style={styles.dialogTitle}>
+            Mot de passe pour continuer
+          </Dialog.Title>
+          <Dialog.Content>
+            <TextInput
+              mode="outlined"
+              secureTextEntry={isView}
+              placeholderTextColor={theme.colors.grey100}
+              autoCapitalize="none"
+              value={password}
+              label="Mot de passe"
+              onChangeText={text => setPassword(text)}
+              right={
+                <TextInput.Icon
+                  icon={isView ? 'eye-slash' : 'eye'}
+                  iconColor={theme.colors.text}
+                  onPress={() => setIsView(!isView)}
+                />
+              }
+            />
+            {err.length ? (
+              <Text variant="labelLarge" style={styles.err}>
+                {err}
+              </Text>
+            ) : null}
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button
+              mode="outlined"
+              loading={loadingPortal}
+              style={styles.btn}
+              buttonColor={theme.colors.primary}
+              textColor={theme.colors.light}
+              onPress={goToPage}>
+              Continuer
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
       <Button
         onPress={() => navigation.navigate('AddMember')}
         mode="outlined"
@@ -215,96 +281,47 @@ const Pointage = () => {
         textColor={theme.colors.light}>
         Inscrire un membre
       </Button>
-      <PaperSelect
-        label="Sélectionnez un évenement"
-        value={cultes.value}
-        onSelection={(value: any) => {
-          setCultes({
-            ...cultes,
-            value: value.text,
-            selectedList: value.selectedList,
-            error: '',
-          });
-        }}
-        checkboxLabelStyle={{color: theme.colors.text}}
-        activeUnderlineColor="transparent"
-        underlineColor="transparent"
-        textInputMode="outlined"
-        textInputStyle={styles.textInputStyle}
-        outlineColor={theme.colors.outline}
-        activeOutlineColor={theme.colors.primary}
-        hideSearchBox={false}
-        multiEnable={false}
-        searchPlaceholder="Recherche"
-        dialogTitleStyle={styles.dialogTitle}
-        arrayList={[...cultes.list]}
-        selectedArrayList={[...cultes.selectedList]}
-        errorText={cultes.error}
-        checkboxColor={theme.colors.primary}
-        modalCloseButtonText="Fermer"
-        modalDoneButtonText="Choisir"
-      />
-      {cultes.selectedList.length ? (
-        <View style={styles.viewSelect}>
-          <Searchbar
-            placeholder="Recherche"
-            onChangeText={onChangeSearch}
-            value={searchQuery}
-            style={styles.searchBar}
-          />
-          <FlatList
-            data={returnData()}
-            keyExtractor={i => String(i.idmembres)}
-            removeClippedSubviews={true}
-            initialNumToRender={30}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.contentScroll}
-            contentInsetAdjustmentBehavior="automatic"
-            renderItem={({item}) => (
-              <TouchableOpacity
-                onPress={() => sendPointage(item)}
-                key={item.idmembres}
-                style={styles.renderItem}>
-                <Text variant="bodyLarge" style={styles.title}>
-                  {item.nom} {item.prenoms}
-                </Text>
-                {renderIcon(item?.idmembres)}
-              </TouchableOpacity>
-            )}
-            refreshing={true}
-            refreshControl={
-              <RefreshControl
-                progressBackgroundColor={theme.colors.primary}
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                colors={[theme.colors.light]}
-                tintColor={theme.colors.primary}
-              />
-            }
-            onEndReachedThreshold={0.5}
-            onEndReached={fetchMoreData}
-            ListFooterComponent={<ListFooter loadMore={loadingMore} />}
-          />
-          {/* {pointageList.length ? (
-            <FAB
-              icon={() => (
-                <Icon
-                  name="corner-right-up"
-                  color={theme.colors.light}
-                  size={20}
-                />
-              )}
-              customSize={40}
-              label="Confirmer"
-              mode="flat"
-              size="small"
-              color={theme.colors.light}
-              style={[styles.fab, {backgroundColor: theme.colors.primary}]}
-              onPress={sendPointage}
+      <View style={styles.viewSelect}>
+        <Searchbar
+          placeholder="Recherche"
+          onChangeText={onChangeSearch}
+          value={searchQuery}
+          style={styles.searchBar}
+        />
+        <FlatList
+          data={returnData()}
+          keyExtractor={i => String(i.idmembres)}
+          removeClippedSubviews={true}
+          initialNumToRender={30}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.contentScroll}
+          contentInsetAdjustmentBehavior="automatic"
+          renderItem={({item}) => (
+            <TouchableOpacity
+              onPress={() => sendPointage(item)}
+              key={item.idmembres}
+              style={styles.renderItem}>
+              <Text variant="bodyLarge" style={styles.title}>
+                {item.nom} {item.prenoms}
+              </Text>
+              {renderIcon(item?.idmembres)}
+            </TouchableOpacity>
+          )}
+          refreshing={true}
+          refreshControl={
+            <RefreshControl
+              progressBackgroundColor={theme.colors.primary}
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[theme.colors.light]}
+              tintColor={theme.colors.primary}
             />
-          ) : null} */}
-        </View>
-      ) : null}
+          }
+          onEndReachedThreshold={0.5}
+          onEndReached={fetchMoreData}
+          ListFooterComponent={<ListFooter loadMore={loadingMore} />}
+        />
+      </View>
       <Snackbar
         duration={3000}
         onIconPress={onDismissSnackBar}
@@ -321,16 +338,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.clouds,
-    // paddingTop: Platform.OS === 'ios' ? 20 : 20,
   },
   viewSelect: {
     flex: 1,
   },
   contentScroll: {
     flexGrow: 1,
-  },
-  dialogTitle: {
-    fontSize: 18,
   },
   textInputStyle: {
     textAlign: 'auto',
@@ -365,10 +378,20 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.success,
   },
   btn: {
-    width: Dimensions.get('window').width / 2,
     borderColor: 'transparent',
     alignSelf: 'center',
-    marginTop: 15,
+    marginVertical: 20,
+  },
+  dialogTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  dialog: {
+    backgroundColor: theme.colors.light,
+  },
+  err: {
+    color: theme.colors.error,
+    fontWeight: 'bold',
   },
 });
 export default memo(Pointage);

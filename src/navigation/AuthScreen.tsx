@@ -2,7 +2,7 @@ import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import TabBar from './TabBar';
 import AddMember from '../screens/AddMember';
-import Profile from '../screens/Profile';
+import ChooseCulte from '../screens/ChooseCulte';
 import Statistiques from '../screens/Statistiques';
 import theme from '../themes';
 import Manual from '../screens/Manual';
@@ -31,6 +31,17 @@ const AuthStack = () => {
         }}
       />
       <Stack.Screen
+        name="ChooseCulte"
+        component={ChooseCulte}
+        options={{
+          title: 'Choix du culte',
+          headerTitleStyle: {
+            color: theme.colors.text,
+          },
+          headerTitleAlign: 'left',
+        }}
+      />
+      <Stack.Screen
         name="Pointage"
         component={Pointage}
         options={{
@@ -38,7 +49,9 @@ const AuthStack = () => {
           headerTitleStyle: {
             color: theme.colors.text,
           },
-          headerTitleAlign: 'left',
+          headerTitleAlign: 'center',
+          headerLeft: () => null,
+          headerBackVisible: false,
         }}
       />
       <Stack.Screen

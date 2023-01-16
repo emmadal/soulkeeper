@@ -23,7 +23,6 @@ import {
   View,
   Alert,
   RefreshControl,
-  Dimensions,
   SafeAreaView,
   BackHandler,
 } from 'react-native';
@@ -35,7 +34,8 @@ import Icon from 'react-native-vector-icons/Feather';
 import {Membres, Pointage as PointageTypes} from '../types';
 import Loader from '../components/Loader';
 import ListFooter from '../components/ListFooter';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import EmptyRenderList from '../components/EmptyRenderList';
 
 const size = 50;
 
@@ -71,15 +71,19 @@ const Pointage = ({route}) => {
       page.current,
       state.user.identreprises,
     );
-    const result = [...new Set([...members, ...req?.membres])];
-    setMembers(result);
+    setMembers(req);
     return req;
-  }, [members, state?.token, state.user.identreprises, token]);
+  }, [state?.token, state.user.identreprises, token]);
 
   const onRefresh = useCallback(async () => {
     try {
       setRefreshing(true);
-      const req = await getMembers(token || state?.token, size, 0);
+      const req = await getMembers(
+        token || state?.token,
+        size,
+        0,
+        state?.user?.identreprises,
+      );
       if (req) {
         wait(2000).then(() => {
           setRefreshing(false);
@@ -92,11 +96,31 @@ const Pointage = ({route}) => {
       setRefreshing(false);
       Alert.alert(error);
     }
-  }, [state?.token, token]);
+  }, [state?.token, state?.user?.identreprises, token]);
 
-  useEffect(() => {
-    fetchMembers();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      let isActive = true;
+      try {
+        const fetchAllMembers = async () => {
+          const req = await getMembers(
+            token || state?.token,
+            size,
+            page.current,
+            state.user.identreprises,
+          );
+          if (isActive) {
+            setMembers(req?.membres);
+          }
+        };
+        fetchAllMembers();
+        console.log({isActive});
+        return () => {
+          isActive = false;
+        };
+      } catch (error) {}
+    }, [state?.token, state.user.identreprises, token]),
+  );
 
   useEffect(() => {
     const backAction = () => {
@@ -124,8 +148,7 @@ const Pointage = ({route}) => {
       setLoadingMore(false);
       return;
     } else {
-      const res = [...new Set([...members, ...response?.membres])];
-      setMembers(res);
+      setMembers(response?.membres);
     }
     setLoadingMore(false);
   };
@@ -297,7 +320,12 @@ const Pointage = ({route}) => {
           data={returnData()}
           keyExtractor={i => String(i.idmembres)}
           removeClippedSubviews={true}
-          initialNumToRender={30}
+          ListEmptyComponent={
+            <EmptyRenderList
+              text="Vous n'avez aucun utilisateur enregistré"
+              icon="users"
+            />
+          }
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.contentScroll}
           contentInsetAdjustmentBehavior="automatic"

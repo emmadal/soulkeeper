@@ -28,7 +28,7 @@ const Login = () => {
     try {
       setLoading(!loading);
       const res = await loginUser(values.login, values.password);
-      if (res?.role && res?.login) {
+      if (res?.login) {
         const {token, ...rest} = res;
         await keyChain.setGenericPassword(values.login, values.password);
         // update global state while dispatch action
@@ -41,7 +41,7 @@ const Login = () => {
       }
     } catch (error) {
       setLoading(false);
-      Alert.alert(error?.message);
+      Alert.alert('Erreur de connexion', error?.message);
     }
   };
 

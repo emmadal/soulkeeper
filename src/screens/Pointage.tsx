@@ -65,11 +65,16 @@ const Pointage = ({route}) => {
   const onChangeSearch = (query: string) => setSearchQuery(query);
 
   const fetchMembers = useCallback(async () => {
-    const req = await getMembers(token || state?.token, size, page.current);
+    const req = await getMembers(
+      token || state?.token,
+      size,
+      page.current,
+      state.user.identreprises,
+    );
     const result = [...new Set([...members, ...req?.membres])];
     setMembers(result);
     return req;
-  }, [members, state?.token, token]);
+  }, [members, state?.token, state.user.identreprises, token]);
 
   const onRefresh = useCallback(async () => {
     try {

@@ -55,8 +55,8 @@ const AddMember = () => {
     const countryArr = [];
 
     const [cities, districts, countries] = await Promise.all([
-      getCities(token || state?.token),
-      getCommune(token || state?.token),
+      getCities(token || state?.token, state?.user?.identreprises),
+      getCommune(token || state?.token, state?.user?.identreprises),
       getCountry(token || state?.token),
     ]);
 
@@ -76,7 +76,7 @@ const AddMember = () => {
     setCommune({...commune, list: [...communeArr]});
     setTown({...town, list: [...cityArr]});
     setCountry({...country, list: [...countryArr]});
-  }, [commune, country, state?.token, token, town]);
+  }, [commune, country, state?.token, state?.user?.identreprises, token, town]);
 
   useEffect(() => {
     retrieveDataFromServer();

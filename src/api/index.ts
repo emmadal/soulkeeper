@@ -32,7 +32,7 @@ export const getUserProfile = (
 ): Promise<Entreprise> =>
   new Promise((resolve, reject) => {
     const params = {
-      method: 'GET',
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
@@ -47,14 +47,15 @@ export const getUserProfile = (
 /**
  * Get All cities available
  */
-export const getCities = (token: string) => {
+export const getCities = (token: string, identreprises: number | undefined) => {
   return new Promise((resolve, reject) => {
     const params = {
-      method: 'GET',
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
+      body: JSON.stringify({identreprises}),
     };
     fetch(API.ville, params)
       .then(res => res.json())
@@ -66,14 +67,15 @@ export const getCities = (token: string) => {
 /**
  * Get All District available
  */
-export const getCommune = (token: string) => {
+export const getCommune = (token: string, identreprises: number | undefined) => {
   return new Promise((resolve, reject) => {
     const params = {
-      method: 'GET',
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
+      body: JSON.stringify({identreprises}),
     };
     fetch(API.commune, params)
       .then(res => res.json())
@@ -85,14 +87,15 @@ export const getCommune = (token: string) => {
 /**
  * Get All Cultes available
  */
-export const getCultes = (token: string) => {
+export const getCultes = (token: string, identreprises: number | undefined) => {
   return new Promise((resolve, reject) => {
     const params = {
-      method: 'GET',
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
+      body: JSON.stringify({identreprises}),
     };
     fetch(API.cultes, params)
       .then(res => res.json())
@@ -107,7 +110,7 @@ export const getCultes = (token: string) => {
 export const getCountry = (token: string) => {
   return new Promise((resolve, reject) => {
     const params = {
-      method: 'GET',
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
@@ -143,14 +146,20 @@ export const addMember = (data: Membres, token: string) => {
 /**
  * get all members
  */
-export const getMembers = (token: string, size: number, page: number) => {
+export const getMembers = (
+  token: string,
+  size: number,
+  page: number,
+  identreprises: number | undefined,
+) => {
   return new Promise((resolve, reject) => {
     const params = {
-      method: 'GET',
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
+      body: JSON.stringify({identreprises}),
     };
     fetch(`${API.members}?page=${page}&size=${size}`, params)
       .then(res => res.json())

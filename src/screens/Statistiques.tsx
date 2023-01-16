@@ -25,7 +25,10 @@ const Statistiques = () => {
   const handleCulte = useCallback(async () => {
     try {
       const arr = [];
-      const res = await getCultes(token || state.token);
+      const res = await getCultes(
+        token || state.token,
+        state?.user?.identreprises,
+      );
       if (res?.length) {
         for (const cult of res) {
           arr.push({_id: cult?.idculte, value: cult?.libelle});
@@ -35,7 +38,7 @@ const Statistiques = () => {
     } catch (error) {
       console.log(error.message);
     }
-  }, [cultes, state?.token, token]);
+  }, [cultes, state.token, state.user?.identreprises, token]);
 
   const getDate = (item: any) => {
     const req = new Date(item).toLocaleDateString('fr');

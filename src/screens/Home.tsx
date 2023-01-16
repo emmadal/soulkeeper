@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   Dimensions,
   BackHandler,
-  Alert
+  Alert,
 } from 'react-native';
 import {Button, Dialog, Portal, TextInput} from 'react-native-paper';
 import * as keyChain from 'react-native-keychain';

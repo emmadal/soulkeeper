@@ -67,7 +67,10 @@ export const getCities = (token: string, identreprises: number | undefined) => {
 /**
  * Get All District available
  */
-export const getCommune = (token: string, identreprises: number | undefined) => {
+export const getCommune = (
+  token: string,
+  identreprises: number | undefined,
+) => {
   return new Promise((resolve, reject) => {
     const params = {
       method: 'POST',
@@ -148,8 +151,6 @@ export const addMember = (data: Membres, token: string) => {
  */
 export const getMembers = (
   token: string,
-  size: number,
-  page: number,
   identreprises: number | undefined,
 ) => {
   return new Promise((resolve, reject) => {
@@ -161,7 +162,7 @@ export const getMembers = (
       },
       body: JSON.stringify({identreprises}),
     };
-    fetch(`${API.members}?page=${page}&size=${size}`, params)
+    fetch(API.members, params)
       .then(res => res.json())
       .then(e => resolve(e))
       .catch(err => reject(err));

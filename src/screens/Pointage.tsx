@@ -33,11 +33,11 @@ import {AuthContext} from '../context/AuthContext';
 import Icon from 'react-native-vector-icons/Feather';
 import {Membres, Pointage as PointageTypes} from '../types';
 import Loader from '../components/Loader';
-import ListFooter from '../components/ListFooter';
+// import ListFooter from '../components/ListFooter';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import EmptyRenderList from '../components/EmptyRenderList';
 
-const size = 50;
+const size = 100;
 
 const wait = (timeout: number) => {
   return new Promise(resolve => setTimeout(resolve, timeout));
@@ -67,8 +67,6 @@ const Pointage = ({route}) => {
   const fetchMembers = useCallback(async () => {
     const req = await getMembers(
       token || state?.token,
-      size,
-      page.current,
       state.user.identreprises,
     );
     setMembers(req);
@@ -80,8 +78,6 @@ const Pointage = ({route}) => {
       setRefreshing(true);
       const req = await getMembers(
         token || state?.token,
-        size,
-        0,
         state?.user?.identreprises,
       );
       if (req) {
@@ -105,22 +101,38 @@ const Pointage = ({route}) => {
         const fetchAllMembers = async () => {
           const req = await getMembers(
             token || state?.token,
-            size,
-            page.current,
             state.user.identreprises,
           );
           if (isActive) {
-            setMembers(req?.membres);
+            const result = req?.sort((a, b) => b.idmembres - a.idmembres);
+            setMembers(result);
           }
         };
         fetchAllMembers();
-        console.log({isActive});
         return () => {
           isActive = false;
         };
       } catch (error) {}
     }, [state?.token, state.user.identreprises, token]),
   );
+
+  // useEffect(() => {
+  //   const fetchAllMembers = async () => {
+  //     const req = await getMembers(
+  //       token || state?.token,
+  //       size,
+  //       page.current,
+  //       state.user.identreprises,
+  //     );
+  //     if (focus) {
+  //       setMembers(req?.membres);
+  //     }
+  //     // if (isActive) {
+  //     // }
+  //     console.log(focus);
+  //   };
+  //   fetchAllMembers();
+  // }, [focus, state?.token, state.user.identreprises, token]);
 
   useEffect(() => {
     const backAction = () => {
@@ -148,22 +160,19 @@ const Pointage = ({route}) => {
       setLoadingMore(false);
       return;
     } else {
-      setMembers(response?.membres);
+      setMembers([...members, ...response?.membres]);
     }
     setLoadingMore(false);
   };
 
   const returnData = () => {
-    if (searchQuery.length) {
+    if (searchQuery.length && members.length) {
       const filterData = members.filter(
         i =>
           i.nom.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          i.prenoms.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          `${i.nom} ${i.prenoms}`
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase()),
+          i.prenoms.toLowerCase().includes(searchQuery.toLowerCase()),
       );
-      return filterData;
+      return filterData ?? members;
     }
     return members;
   };
@@ -350,9 +359,9 @@ const Pointage = ({route}) => {
               tintColor={theme.colors.primary}
             />
           }
-          onEndReachedThreshold={0.5}
-          onEndReached={fetchMoreData}
-          ListFooterComponent={<ListFooter loadMore={loadingMore} />}
+          // onEndReachedThreshold={0.5}
+          // onEndReached={fetchMoreData}
+          // ListFooterComponent={<ListFooter loadMore={loadingMore} />}
         />
       </View>
       <Snackbar

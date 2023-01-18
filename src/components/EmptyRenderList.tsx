@@ -23,7 +23,6 @@ const styles = StyleSheet.create({
     paddingTop: 40,
   },
   text: {
-    fontFamily: 'Poppins-Bold',
     marginTop: 15,
     color: theme.colors.onBackground,
   },

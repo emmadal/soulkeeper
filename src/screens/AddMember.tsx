@@ -5,7 +5,14 @@ import React, {
   useEffect,
   useRef,
 } from 'react';
-import {ScrollView, View, StyleSheet, Alert} from 'react-native';
+import {
+  ScrollView,
+  View,
+  StyleSheet,
+  Alert,
+  Platform,
+  KeyboardAvoidingView,
+} from 'react-native';
 import {Formik} from 'formik';
 import * as yup from 'yup';
 import {TextInput, Button, Text} from 'react-native-paper';
@@ -128,289 +135,292 @@ const AddMember = () => {
   }, [value]);
 
   return (
-    <View style={styles.container}>
-      <Loader loading={loading} />
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={styles.scroll}>
-        <Formik
-          enableReinitialize={true}
-          initialValues={{
-            nom: '',
-            prenoms: '',
-            jour: '',
-            mois: '',
-            annee: '',
-            // contact: '',
-            autre_contact: '',
-            email: '',
-            quartier: '',
-          }}
-          validationSchema={yup.object().shape({
-            nom: yup.string().required('Entrez votre Nom'),
-            prenoms: yup.string().required('Entrez votre Prénoms'),
-            mois: yup
-              .string()
-              .matches(regex.month, 'Mois de naissance')
-              .required('Mois de naissance'),
-            jour: yup
-              .string()
-              .matches(regex.day, 'Jour de naissance')
-              .required('Jour de naissance'),
-            quartier: yup
-              .string()
-              .required("Entrez votre quartier d'habitation"),
-          })}
-          onSubmit={values => saveMember(values)}>
-          {({
-            handleBlur,
-            handleChange,
-            values,
-            handleSubmit,
-            errors,
-            touched,
-          }) => (
-            <View style={styles.content}>
-              <View style={styles.row}>
-                <View style={styles.inputWrap}>
-                  <TextInput
-                    mode="outlined"
-                    label="Nom"
-                    autoCapitalize="none"
-                    value={values.nom}
-                    onChangeText={handleChange('nom')}
-                    style={styles.inputView}
-                    onBlur={handleBlur('nom')}
-                  />
-                  {errors.nom && touched.nom && (
-                    <Text style={{color: theme.colors.error}}>
-                      {errors.nom}
-                    </Text>
-                  )}
+    <KeyboardAvoidingView
+      style={styles.keyboard}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <View style={styles.container}>
+        <Loader loading={loading} />
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentInsetAdjustmentBehavior="automatic"
+          contentContainerStyle={styles.scroll}>
+          <Formik
+            enableReinitialize={true}
+            initialValues={{
+              nom: '',
+              prenoms: '',
+              jour: '',
+              mois: '',
+              annee: '',
+              autre_contact: '',
+              email: '',
+              quartier: '',
+            }}
+            validationSchema={yup.object().shape({
+              nom: yup.string().required('Entrez votre Nom'),
+              prenoms: yup.string().required('Entrez votre Prénoms'),
+              mois: yup
+                .string()
+                .matches(regex.month, 'Mois de naissance')
+                .required('Mois de naissance'),
+              jour: yup
+                .string()
+                .matches(regex.day, 'Jour de naissance')
+                .required('Jour de naissance'),
+              quartier: yup
+                .string()
+                .required("Entrez votre quartier d'habitation"),
+            })}
+            onSubmit={values => saveMember(values)}>
+            {({
+              handleBlur,
+              handleChange,
+              values,
+              handleSubmit,
+              errors,
+              touched,
+            }) => (
+              <View style={styles.content}>
+                <View style={styles.row}>
+                  <View style={styles.inputWrap}>
+                    <TextInput
+                      mode="outlined"
+                      label="Nom"
+                      autoCapitalize="none"
+                      value={values.nom}
+                      onChangeText={handleChange('nom')}
+                      style={styles.inputView}
+                      onBlur={handleBlur('nom')}
+                    />
+                    {errors.nom && touched.nom && (
+                      <Text style={{color: theme.colors.error}}>
+                        {errors.nom}
+                      </Text>
+                    )}
+                  </View>
+                  <View style={styles.inputWrap}>
+                    <TextInput
+                      mode="outlined"
+                      label="Prénoms"
+                      autoCapitalize="none"
+                      value={values.prenoms}
+                      onChangeText={handleChange('prenoms')}
+                      style={styles.inputView}
+                      onBlur={handleBlur('prenoms')}
+                    />
+                    {errors.prenoms && touched.prenoms && (
+                      <Text style={{color: theme.colors.error}}>
+                        {errors.prenoms}
+                      </Text>
+                    )}
+                  </View>
                 </View>
-                <View style={styles.inputWrap}>
-                  <TextInput
-                    mode="outlined"
-                    label="Prénoms"
-                    autoCapitalize="none"
-                    value={values.prenoms}
-                    onChangeText={handleChange('prenoms')}
-                    style={styles.inputView}
-                    onBlur={handleBlur('prenoms')}
-                  />
-                  {errors.prenoms && touched.prenoms && (
-                    <Text style={{color: theme.colors.error}}>
-                      {errors.prenoms}
-                    </Text>
-                  )}
+                <View style={styles.row}>
+                  <View style={styles.inputWrap}>
+                    <TextInput
+                      mode="outlined"
+                      label="Jour"
+                      keyboardType="decimal-pad"
+                      autoCapitalize="none"
+                      value={values.jour}
+                      onChangeText={handleChange('jour')}
+                      style={styles.inputView}
+                      onBlur={handleBlur('jour')}
+                    />
+                    {errors.jour && touched.jour && (
+                      <Text style={{color: theme.colors.error}}>
+                        {errors.jour}
+                      </Text>
+                    )}
+                  </View>
+                  <View style={styles.inputWrap}>
+                    <TextInput
+                      mode="outlined"
+                      label="Mois"
+                      keyboardType="decimal-pad"
+                      autoCapitalize="none"
+                      value={values.mois}
+                      onChangeText={handleChange('mois')}
+                      style={styles.inputView}
+                      onBlur={handleBlur('mois')}
+                    />
+                    {errors.mois && touched.mois && (
+                      <Text style={{color: theme.colors.error}}>
+                        {errors.mois}
+                      </Text>
+                    )}
+                  </View>
+                  <View style={styles.inputWrap}>
+                    <TextInput
+                      mode="outlined"
+                      label="Année (Facultatif)"
+                      autoCapitalize="none"
+                      value={values.annee}
+                      keyboardType="decimal-pad"
+                      onChangeText={handleChange('annee')}
+                      style={styles.inputView}
+                      onBlur={handleBlur('annee')}
+                    />
+                  </View>
                 </View>
-              </View>
-              <View style={styles.row}>
-                <View style={styles.inputWrap}>
-                  <TextInput
-                    mode="outlined"
-                    label="Jour"
-                    keyboardType="decimal-pad"
-                    autoCapitalize="none"
-                    value={values.jour}
-                    onChangeText={handleChange('jour')}
-                    style={styles.inputView}
-                    onBlur={handleBlur('jour')}
-                  />
-                  {errors.jour && touched.jour && (
-                    <Text style={{color: theme.colors.error}}>
-                      {errors.jour}
-                    </Text>
-                  )}
-                </View>
-                <View style={styles.inputWrap}>
-                  <TextInput
-                    mode="outlined"
-                    label="Mois"
-                    keyboardType="decimal-pad"
-                    autoCapitalize="none"
-                    value={values.mois}
-                    onChangeText={handleChange('mois')}
-                    style={styles.inputView}
-                    onBlur={handleBlur('mois')}
-                  />
-                  {errors.mois && touched.mois && (
-                    <Text style={{color: theme.colors.error}}>
-                      {errors.mois}
-                    </Text>
-                  )}
-                </View>
-                <View style={styles.inputWrap}>
-                  <TextInput
-                    mode="outlined"
-                    label="Année (Facultatif)"
-                    autoCapitalize="none"
-                    value={values.annee}
-                    keyboardType="decimal-pad"
-                    onChangeText={handleChange('annee')}
-                    style={styles.inputView}
-                    onBlur={handleBlur('annee')}
+                <View>
+                  <PhoneInput
+                    ref={phoneInput}
+                    defaultValue={value}
+                    placeholder="Entrez votre Contact"
+                    defaultCode={'CI'}
+                    layout="first"
+                    containerStyle={styles.phoneContainerStyle}
+                    onChangeText={text => setValue(text)}
+                    onChangeFormattedText={text => setFormattedValue(text)}
+                    textContainerStyle={styles.textContainerStyle}
                   />
                 </View>
-              </View>
-              <View>
-                <PhoneInput
-                  ref={phoneInput}
-                  defaultValue={value}
-                  placeholder="Entrez votre Contact"
-                  defaultCode="CI"
-                  layout="first"
-                  containerStyle={styles.phoneContainerStyle}
-                  onChangeText={text => setValue(text)}
-                  onChangeFormattedText={text => setFormattedValue(text)}
-                  textContainerStyle={styles.textContainerStyle}
-                />
-              </View>
-              {!valid && value.length ? (
-                <Text style={{color: theme.colors.error}}>
-                  Entrez un contact valide suivi du code indicatif
-                </Text>
-              ) : null}
-              <TextInput
-                mode="outlined"
-                label="Autre contact (Facultatif)"
-                keyboardType="phone-pad"
-                placeholder="xxx xxx xxx"
-                autoCapitalize="none"
-                value={values.autre_contact}
-                onChangeText={handleChange('autre_contact')}
-                style={styles.inputView}
-                onBlur={handleBlur('autre_contact')}
-              />
-              <TextInput
-                mode="outlined"
-                label="Email (Facultatif)"
-                keyboardType="email-address"
-                placeholder="Email"
-                autoCapitalize="none"
-                value={values.email}
-                onChangeText={handleChange('email')}
-                style={styles.inputView}
-                onBlur={handleBlur('email')}
-              />
-              <PaperSelect
-                label="Pays (Facultatif)"
-                value={country.selectedList[0]?.value}
-                onSelection={(value: any) => {
-                  setCountry({
-                    ...country,
-                    value: value.text,
-                    selectedList: value.selectedList,
-                    error: '',
-                  });
-                }}
-                checkboxLabelStyle={{color: theme.colors.text}}
-                searchPlaceholder="Recherche"
-                textInputStyle={styles.select}
-                dialogTitle="Sélectionnez un pays"
-                activeUnderlineColor="transparent"
-                underlineColor="transparent"
-                textInputMode="outlined"
-                outlineColor={theme.colors.outline}
-                activeOutlineColor={theme.colors.primary}
-                hideSearchBox={false}
-                multiEnable={false}
-                arrayList={[...country.list]}
-                selectedArrayList={[...country.selectedList]}
-                errorText={country.error}
-                checkboxColor={theme.colors.primary}
-                modalCloseButtonText="Fermer"
-                modalDoneButtonText="Choisir"
-              />
-              <PaperSelect
-                label="Ville (Facultatif)"
-                value={town.value}
-                onSelection={(value: any) => {
-                  setTown({
-                    ...town,
-                    value: value.text,
-                    selectedList: value.selectedList,
-                    error: '',
-                  });
-                }}
-                checkboxLabelStyle={{color: theme.colors.text}}
-                searchPlaceholder="Recherche"
-                textInputStyle={styles.select}
-                activeUnderlineColor="transparent"
-                underlineColor="transparent"
-                textInputMode="outlined"
-                outlineColor={theme.colors.outline}
-                activeOutlineColor={theme.colors.primary}
-                hideSearchBox={true}
-                multiEnable={false}
-                arrayList={[...town.list]}
-                selectedArrayList={[...town.selectedList]}
-                errorText={town.error}
-                checkboxColor={theme.colors.primary}
-                modalCloseButtonText="Fermer"
-                modalDoneButtonText="Choisir"
-              />
-
-              <PaperSelect
-                label="Commune (Facultatif)"
-                value={commune.value}
-                onSelection={(value: any) => {
-                  setCommune({
-                    ...commune,
-                    value: value.text,
-                    selectedList: value.selectedList,
-                    error: '',
-                  });
-                }}
-                checkboxLabelStyle={{color: theme.colors.text}}
-                searchPlaceholder="Recherche"
-                textInputStyle={styles.select}
-                activeUnderlineColor="transparent"
-                underlineColor="transparent"
-                textInputMode="outlined"
-                outlineColor={theme.colors.outline}
-                activeOutlineColor={theme.colors.primary}
-                hideSearchBox={true}
-                multiEnable={false}
-                arrayList={[...commune.list]}
-                selectedArrayList={[...commune.selectedList]}
-                errorText={commune.error}
-                checkboxColor={theme.colors.primary}
-                modalCloseButtonText="Fermer"
-                modalDoneButtonText="Choisir"
-              />
-              <View>
+                {!valid && value.length ? (
+                  <Text style={{color: theme.colors.error}}>
+                    Entrez un contact valide suivi du code indicatif
+                  </Text>
+                ) : null}
                 <TextInput
                   mode="outlined"
-                  label="Quartier"
-                  placeholder="Quartier"
+                  label="Autre contact (Facultatif)"
+                  keyboardType="phone-pad"
+                  placeholder="xxx xxx xxx"
                   autoCapitalize="none"
-                  value={values.quartier}
-                  onChangeText={handleChange('quartier')}
+                  value={values.autre_contact}
+                  onChangeText={handleChange('autre_contact')}
                   style={styles.inputView}
-                  onBlur={handleBlur('quartier')}
+                  onBlur={handleBlur('autre_contact')}
                 />
-                {errors.quartier && touched.quartier && (
-                  <Text style={{color: theme.colors.error}}>
-                    {errors.quartier}
-                  </Text>
-                )}
-              </View>
+                <TextInput
+                  mode="outlined"
+                  label="Email (Facultatif)"
+                  keyboardType="email-address"
+                  placeholder="Email"
+                  autoCapitalize="none"
+                  value={values.email}
+                  onChangeText={handleChange('email')}
+                  style={styles.inputView}
+                  onBlur={handleBlur('email')}
+                />
+                <PaperSelect
+                  label="Pays (Facultatif)"
+                  value={country.selectedList[0]?.value}
+                  onSelection={(value: any) => {
+                    setCountry({
+                      ...country,
+                      value: value.text,
+                      selectedList: value.selectedList,
+                      error: '',
+                    });
+                  }}
+                  checkboxLabelStyle={{color: theme.colors.text}}
+                  searchPlaceholder="Recherche"
+                  textInputStyle={styles.select}
+                  dialogTitle="Sélectionnez un pays"
+                  activeUnderlineColor="transparent"
+                  underlineColor="transparent"
+                  textInputMode="outlined"
+                  outlineColor={theme.colors.outline}
+                  activeOutlineColor={theme.colors.primary}
+                  hideSearchBox={false}
+                  multiEnable={false}
+                  arrayList={[...country.list]}
+                  selectedArrayList={[...country.selectedList]}
+                  errorText={country.error}
+                  checkboxColor={theme.colors.primary}
+                  modalCloseButtonText="Fermer"
+                  modalDoneButtonText="Choisir"
+                />
+                <PaperSelect
+                  label="Ville (Facultatif)"
+                  value={town.value}
+                  onSelection={(value: any) => {
+                    setTown({
+                      ...town,
+                      value: value.text,
+                      selectedList: value.selectedList,
+                      error: '',
+                    });
+                  }}
+                  checkboxLabelStyle={{color: theme.colors.text}}
+                  searchPlaceholder="Recherche"
+                  textInputStyle={styles.select}
+                  activeUnderlineColor="transparent"
+                  underlineColor="transparent"
+                  textInputMode="outlined"
+                  outlineColor={theme.colors.outline}
+                  activeOutlineColor={theme.colors.primary}
+                  hideSearchBox={true}
+                  multiEnable={false}
+                  arrayList={[...town.list]}
+                  selectedArrayList={[...town.selectedList]}
+                  errorText={town.error}
+                  checkboxColor={theme.colors.primary}
+                  modalCloseButtonText="Fermer"
+                  modalDoneButtonText="Choisir"
+                />
 
-              <Button
-                onPress={handleSubmit}
-                mode="outlined"
-                style={styles.btnSave}
-                buttonColor={theme.colors.primary}
-                textColor={theme.colors.light}>
-                Valider l'inscription
-              </Button>
-            </View>
-          )}
-        </Formik>
-      </ScrollView>
-    </View>
+                <PaperSelect
+                  label="Commune (Facultatif)"
+                  value={commune.value}
+                  onSelection={(value: any) => {
+                    setCommune({
+                      ...commune,
+                      value: value.text,
+                      selectedList: value.selectedList,
+                      error: '',
+                    });
+                  }}
+                  checkboxLabelStyle={{color: theme.colors.text}}
+                  searchPlaceholder="Recherche"
+                  textInputStyle={styles.select}
+                  activeUnderlineColor="transparent"
+                  underlineColor="transparent"
+                  textInputMode="outlined"
+                  outlineColor={theme.colors.outline}
+                  activeOutlineColor={theme.colors.primary}
+                  hideSearchBox={true}
+                  multiEnable={false}
+                  arrayList={[...commune.list]}
+                  selectedArrayList={[...commune.selectedList]}
+                  errorText={commune.error}
+                  checkboxColor={theme.colors.primary}
+                  modalCloseButtonText="Fermer"
+                  modalDoneButtonText="Choisir"
+                />
+                <View>
+                  <TextInput
+                    mode="outlined"
+                    label="Quartier"
+                    placeholder="Quartier"
+                    autoCapitalize="none"
+                    value={values.quartier}
+                    onChangeText={handleChange('quartier')}
+                    style={styles.inputView}
+                    onBlur={handleBlur('quartier')}
+                  />
+                  {errors.quartier && touched.quartier && (
+                    <Text style={{color: theme.colors.error}}>
+                      {errors.quartier}
+                    </Text>
+                  )}
+                </View>
+
+                <Button
+                  onPress={handleSubmit}
+                  mode="outlined"
+                  style={styles.btnSave}
+                  buttonColor={theme.colors.primary}
+                  textColor={theme.colors.light}>
+                  Valider l'inscription
+                </Button>
+              </View>
+            )}
+          </Formik>
+        </ScrollView>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -418,6 +428,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.clouds,
+  },
+  keyboard: {
+    flex: 1,
   },
   row: {
     flexDirection: 'row',
@@ -449,6 +462,7 @@ const styles = StyleSheet.create({
     textAlign: 'auto',
     marginVertical: 8,
     width: 'auto',
+    backgroundColor: theme.colors.light,
   },
   desc: {
     marginVertical: 10,
@@ -484,7 +498,6 @@ const styles = StyleSheet.create({
     textAlign: 'auto',
   },
   affix: {
-    // marginRight: -17,
     color: theme.colors.text,
   },
 });

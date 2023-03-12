@@ -1,11 +1,4 @@
-import React, {
-  useEffect,
-  useCallback,
-  useContext,
-  useState,
-  useRef,
-  memo,
-} from 'react';
+import React, {useEffect, useCallback, useContext, useState, memo} from 'react';
 import {
   Text,
   Searchbar,
@@ -37,8 +30,6 @@ import Loader from '../components/Loader';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import EmptyRenderList from '../components/EmptyRenderList';
 
-const size = 100;
-
 const wait = (timeout: number) => {
   return new Promise(resolve => setTimeout(resolve, timeout));
 };
@@ -46,14 +37,12 @@ const wait = (timeout: number) => {
 const Pointage = ({route}) => {
   const token = useRefreshToken();
   const {state} = useContext(AuthContext);
-  const page = useRef(0);
   const [password, setPassword] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [visibleModal, setVisibleModal] = useState(false);
   const [isView, setIsView] = useState(true);
   const [err, setErr] = useState('');
   const [visible, setVisible] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingPortal, setLoadingPortal] = useState(false);
   const [members, setMembers] = useState<Membres[]>([]);
@@ -63,15 +52,6 @@ const Pointage = ({route}) => {
   const navigation = useNavigation();
 
   const onChangeSearch = (query: string) => setSearchQuery(query);
-
-  const fetchMembers = useCallback(async () => {
-    const req = await getMembers(
-      token || state?.token,
-      state.user.identreprises,
-    );
-    setMembers(req);
-    return req;
-  }, [state?.token, state.user.identreprises, token]);
 
   const onRefresh = useCallback(async () => {
     try {
@@ -116,24 +96,6 @@ const Pointage = ({route}) => {
     }, [state?.token, state.user.identreprises, token]),
   );
 
-  // useEffect(() => {
-  //   const fetchAllMembers = async () => {
-  //     const req = await getMembers(
-  //       token || state?.token,
-  //       size,
-  //       page.current,
-  //       state.user.identreprises,
-  //     );
-  //     if (focus) {
-  //       setMembers(req?.membres);
-  //     }
-  //     // if (isActive) {
-  //     // }
-  //     console.log(focus);
-  //   };
-  //   fetchAllMembers();
-  // }, [focus, state?.token, state.user.identreprises, token]);
-
   useEffect(() => {
     const backAction = () => {
       setVisibleModal(!visibleModal);
@@ -150,19 +112,6 @@ const Pointage = ({route}) => {
     const date = new Date().toLocaleDateString('fr');
     const splitDate = date?.split('/').reverse().join('-');
     return splitDate;
-  };
-
-  const fetchMoreData = async () => {
-    setLoadingMore(true);
-    page.current += 1;
-    const response = await fetchMembers();
-    if (!response?.membres?.length) {
-      setLoadingMore(false);
-      return;
-    } else {
-      setMembers([...members, ...response?.membres]);
-    }
-    setLoadingMore(false);
   };
 
   const returnData = () => {

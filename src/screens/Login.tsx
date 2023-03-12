@@ -6,6 +6,7 @@ import {
   Alert,
   Platform,
   Image,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {Formik} from 'formik';
 import * as yup from 'yup';
@@ -46,96 +47,102 @@ const Login = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Loader loading={loading} />
-      <View style={styles.welcomeView}>
-        <Text variant="titleLarge" style={styles.welcome}>
-          Bienvienue sur SOUL KEEPER.
-        </Text>
-        <Text style={styles.welcomeSub} variant="titleMedium">
-          L'application de suivi d'âmes!
-        </Text>
-        <Image
-          style={styles.img}
-          source={require('../assets/image/logo.png')}
-        />
+    <KeyboardAvoidingView
+      style={styles.keyboard}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <View style={styles.container}>
+        <Loader loading={loading} />
+        <View style={styles.welcomeView}>
+          <Text variant="titleLarge" style={styles.welcome}>
+            Bienvienue sur SOUL KEEPER.
+          </Text>
+          <Text style={styles.welcomeSub} variant="titleMedium">
+            L'application de suivi d'âmes!
+          </Text>
+          <Image
+            style={styles.img}
+            source={require('../assets/image/logo.png')}
+          />
+        </View>
+        <Formik
+          initialValues={{
+            login: '',
+            password: '',
+          }}
+          validationSchema={yup.object().shape({
+            login: yup.string().required('Entrez votre login'),
+            password: yup.string().required('Mot de passe requis'),
+          })}
+          onSubmit={values => handleSignin(values)}>
+          {({
+            handleChange,
+            handleBlur,
+            values,
+            handleSubmit,
+            touched,
+            errors,
+          }) => (
+            <View style={styles.formView}>
+              <Text variant="titleLarge" style={styles.appTitle}>
+                Se connecter
+              </Text>
+              <View style={styles.Viewinput}>
+                <TextInput
+                  mode="outlined"
+                  style={styles.input}
+                  label="Nom d'utilisateur"
+                  placeholder="Nom d'utilisateur"
+                  placeholderTextColor={colors.grey100}
+                  autoCapitalize="none"
+                  value={values.login}
+                  onChangeText={handleChange('login')}
+                  onBlur={handleBlur('login')}
+                  right={<TextInput.Icon icon="human" />}
+                />
+                {errors.login && touched.login && (
+                  <Text style={[styles.error, {color: colors.error}]}>
+                    {errors.login}
+                  </Text>
+                )}
+              </View>
+              <View style={styles.Viewinput}>
+                <TextInput
+                  mode="outlined"
+                  secureTextEntry={isView}
+                  style={styles.input}
+                  placeholderTextColor={theme.colors.grey100}
+                  autoCapitalize="none"
+                  value={values.password}
+                  label="Mot de passe"
+                  onChangeText={handleChange('password')}
+                  onBlur={handleBlur('password')}
+                  right={
+                    <TextInput.Icon
+                      icon={isView ? 'eye-off-outline' : 'eye-outline'}
+                      iconColor={theme.colors.text}
+                      onPress={handleViewPassword}
+                    />
+                  }
+                />
+                {errors.password && touched.password && (
+                  <Text style={[styles.error, {color: colors.error}]}>
+                    {errors.password}
+                  </Text>
+                )}
+              </View>
+              <Button
+                onPress={handleSubmit}
+                mode="outlined"
+                style={styles.btn}
+                buttonColor={colors.primary}
+                textColor={theme.colors.light}>
+                Connexion
+              </Button>
+            </View>
+          )}
+        </Formik>
       </View>
-      <Formik
-        initialValues={{
-          login: '',
-          password: '',
-        }}
-        validationSchema={yup.object().shape({
-          login: yup.string().required('Entrez votre login'),
-          password: yup.string().required('Mot de passe requis'),
-        })}
-        onSubmit={values => handleSignin(values)}>
-        {({
-          handleChange,
-          handleBlur,
-          values,
-          handleSubmit,
-          touched,
-          errors,
-        }) => (
-          <View style={styles.formView}>
-            <Text variant="titleLarge" style={styles.appTitle}>
-              Se connecter
-            </Text>
-            <View style={styles.input}>
-              <TextInput
-                mode="outlined"
-                label="Nom d'utilisateur"
-                placeholder="Nom d'utilisateur"
-                placeholderTextColor={colors.grey100}
-                autoCapitalize="none"
-                value={values.login}
-                onChangeText={handleChange('login')}
-                onBlur={handleBlur('login')}
-                right={<TextInput.Icon icon="user" />}
-              />
-              {errors.login && touched.login && (
-                <Text style={[styles.error, {color: colors.error}]}>
-                  {errors.login}
-                </Text>
-              )}
-            </View>
-            <View style={styles.input}>
-              <TextInput
-                mode="outlined"
-                secureTextEntry={isView}
-                placeholderTextColor={colors.grey100}
-                autoCapitalize="none"
-                value={values.password}
-                label="Mot de passe"
-                onChangeText={handleChange('password')}
-                onBlur={handleBlur('password')}
-                right={
-                  <TextInput.Icon
-                    icon={isView ? 'eye-slash' : 'eye'}
-                    iconColor={colors.dark}
-                    onPress={handleViewPassword}
-                  />
-                }
-              />
-              {errors.password && touched.password && (
-                <Text style={[styles.error, {color: colors.error}]}>
-                  {errors.password}
-                </Text>
-              )}
-            </View>
-            <Button
-              onPress={handleSubmit}
-              mode="outlined"
-              style={styles.btn}
-              buttonColor={colors.primary}
-              textColor={colors.light}>
-              Connexion
-            </Button>
-          </View>
-        )}
-      </Formik>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -144,6 +151,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.clouds,
     paddingTop: Platform.OS === 'ios' ? 66 : 30,
+  },
+  keyboard: {
+    flex: 1,
   },
   welcomeView: {
     marginHorizontal: 20,
@@ -180,10 +190,13 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: 20,
   },
-  input: {
+  Viewinput: {
     marginHorizontal: 20,
     marginVertical: 5,
+  },
+  input: {
     textAlign: 'auto',
+    backgroundColor: theme.colors.light,
   },
   img: {
     width: 180,

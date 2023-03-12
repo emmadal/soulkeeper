@@ -12,7 +12,7 @@ import {Entreprise} from './src/types';
 import {AuthContext} from './src/context/AuthContext';
 import Onboarding from './src/navigation/Onboarding';
 import AuthStack from './src/navigation/AuthScreen';
-import AwesomeIcon from 'react-native-vector-icons/FontAwesome';
+import AwesomeIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {getUserProfile, loginUser} from './src/api';
 
 const App = () => {

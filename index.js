@@ -16,4 +16,5 @@ registerTranslation('fr', {
   pickDateFromCalendar: 'Choisissez la date du calendrier',
   typeInDate: 'Entrez la date',
 });
+
 AppRegistry.registerComponent(appName, () => App);

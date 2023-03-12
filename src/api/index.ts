@@ -208,3 +208,17 @@ export const getStatistiques = (token: string, data: any) => {
       .catch(err => reject(err));
   });
 };
+
+// reverse coding
+export const reverseGeocoding = async (lat: number, lng: number) => {
+  const key = 'pk.47b1f92837bbd696ccd8a7e0a25a492f';
+  const url = `https://eu1.locationiq.com/v1/reverse.php?key=${key}&lat=${lat}&lon=${lng}&format=json`;
+  const params = {
+    method: 'GET',
+    redirect: 'follow',
+  };
+  const req = await fetch(url, params);
+  if (req.status === 200) {
+    return await req.json();
+  }
+};

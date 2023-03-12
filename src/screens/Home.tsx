@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   StyleSheet,
   SafeAreaView,
@@ -44,7 +44,6 @@ const Home = () => {
       setLoading(false);
     }
   };
-
 
   const onDismiss = () => {
     setVisible(false);

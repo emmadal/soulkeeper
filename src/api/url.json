@@ -1,0 +1,12 @@
+{
+    "login": "https://mobileapi.bigdata-ci.com/login",
+    "addMembre": "https://mobileapi.bigdata-ci.com/newmembre",
+    "pointage": "https://mobileapi.bigdata-ci.com/pointage",
+    "cultes": "https://mobileapi.bigdata-ci.com/cultes",
+    "ville": "https://mobileapi.bigdata-ci.com/villes",
+    "commune": "https://mobileapi.bigdata-ci.com/commune",
+    "pays": "https://mobileapi.bigdata-ci.com/pays",
+    "getUserByUsername": "https://mobileapi.bigdata-ci.com/user",
+    "members": "https://mobileapi.bigdata-ci.com/membres",
+    "stats": "https://mobileapi.bigdata-ci.com/stats"
+}

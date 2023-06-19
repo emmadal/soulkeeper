@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {Formik} from 'formik';
 import * as yup from 'yup';
-import {TextInput, Button, Text} from 'react-native-paper';
+import {TextInput, Button, Text, RadioButton} from 'react-native-paper';
 import theme from '../themes';
 import Loader from '../components/Loader';
 import * as regex from '../regex';
@@ -25,6 +25,7 @@ const AddMember = () => {
   const token = useRefreshToken();
   const navigation = useNavigation();
   const [value, setValue] = useState('');
+  const [genre, setGenre] = useState('');
   const [formattedValue, setFormattedValue] = useState('');
   const [valid, setValid] = useState(false);
   const phoneInput = useRef<PhoneInput>(null);
@@ -43,6 +44,7 @@ const AddMember = () => {
       date_naissance: annee ? `${jour}-${mois}-${annee}` : `${jour}-${mois}`,
       dateenregistre: getDate(),
       identreprises: state?.user?.identreprises,
+      genre: Number(rest?.genre),
       contact: formattedValue,
     };
     const req: any = await addMember(data, token || state?.token);
@@ -89,9 +91,9 @@ const AddMember = () => {
               jour: '',
               mois: '',
               annee: '',
-              autre_contact: '',
-              email: '',
+              contact: '',
               quartier: '',
+              genre: '',
             }}
             validationSchema={yup.object().shape({
               nom: yup.string().required('Entrez votre Nom'),
@@ -108,6 +110,8 @@ const AddMember = () => {
               quartier: yup
                 .string()
                 .required("Entrez votre quartier d'habitation"),
+              contact: yup.string().required('Entrez votre contact'),
+              genre: yup.string().required('Choisissez votre genre'),
             })}
             onSubmit={values => saveMember(values)}>
             {({
@@ -117,6 +121,7 @@ const AddMember = () => {
               handleSubmit,
               errors,
               touched,
+              setFieldValue,
             }) => (
               <View style={styles.content}>
                 <View>
@@ -207,19 +212,25 @@ const AddMember = () => {
                 <View>
                   <PhoneInput
                     ref={phoneInput}
-                    defaultValue={value}
+                    defaultValue={values.contact}
                     placeholder="Entrez votre Contact"
                     defaultCode={'CI'}
                     layout="first"
                     containerStyle={styles.phoneContainerStyle}
-                    onChangeText={text => setValue(text)}
-                    onChangeFormattedText={text => setFormattedValue(text)}
+                    onChangeText={text => {
+                      setValue(text);
+                      setFieldValue('contact', text);
+                    }}
+                    onChangeFormattedText={text => {
+                      setFormattedValue(text);
+                      setFieldValue('contact', text);
+                    }}
                     textContainerStyle={styles.textContainerStyle}
                   />
                 </View>
                 {!valid && value.length ? (
                   <Text style={{color: theme.colors.error}}>
-                    Entrez un contact valide suivi du code indicatif
+                    Entrez un contact valide
                   </Text>
                 ) : null}
                 <View>
@@ -236,6 +247,24 @@ const AddMember = () => {
                   {errors.quartier && touched.quartier && (
                     <Text style={{color: theme.colors.error}}>
                       {errors.quartier}
+                    </Text>
+                  )}
+                </View>
+                <View style={{marginTop: 10}}>
+                  <Text variant="titleMedium">Selectionnez votre genre :</Text>
+                  <RadioButton.Group
+                    onValueChange={newValue => {
+                      setGenre(newValue);
+                      setFieldValue('genre', newValue);
+                    }}
+                    value={values.genre}>
+                    <RadioButton.Item label="Homme" value="1" />
+                    <RadioButton.Item label="Femme" value="2" />
+                    <RadioButton.Item label="Enfant" value="3" />
+                  </RadioButton.Group>
+                  {errors.genre && touched.genre && (
+                    <Text style={{color: theme.colors.error}}>
+                      {errors.genre}
                     </Text>
                   )}
                 </View>
@@ -261,7 +290,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.clouds,
-    paddingTop: 30,
   },
   keyboard: {
     flex: 1,

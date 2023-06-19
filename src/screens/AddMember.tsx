@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useState,
-  useContext,
-  useEffect,
-  useRef,
-} from 'react';
+import React, {useState, useContext, useEffect, useRef} from 'react';
 import {
   ScrollView,
   View,
@@ -17,10 +11,9 @@ import {Formik} from 'formik';
 import * as yup from 'yup';
 import {TextInput, Button, Text} from 'react-native-paper';
 import theme from '../themes';
-import {PaperSelect} from 'react-native-paper-select';
 import Loader from '../components/Loader';
 import * as regex from '../regex';
-import {getCities, getCommune, getCountry, addMember} from '../api';
+import {addMember} from '../api';
 import {AuthContext} from '../context/AuthContext';
 import useRefreshToken from '../hooks/useRefreshToken';
 import {useNavigation} from '@react-navigation/native';
@@ -36,59 +29,6 @@ const AddMember = () => {
   const [valid, setValid] = useState(false);
   const phoneInput = useRef<PhoneInput>(null);
 
-  const [country, setCountry] = useState<any>({
-    value: '',
-    list: [],
-    selectedList: [],
-    error: '',
-  });
-  const [town, setTown] = useState<any>({
-    value: '',
-    list: [],
-    selectedList: [],
-    error: '',
-  });
-  const [commune, setCommune] = useState<any>({
-    value: '',
-    list: [],
-    selectedList: [],
-    error: '',
-  });
-
-  // Get Cities and district from database
-  const retrieveDataFromServer = useCallback(async () => {
-    const communeArr = [];
-    const cityArr = [];
-    const countryArr = [];
-
-    const [cities, districts, countries] = await Promise.all([
-      getCities(token || state?.token, state?.user?.identreprises),
-      getCommune(token || state?.token, state?.user?.identreprises),
-      getCountry(token || state?.token),
-    ]);
-
-    // format data to be conform with paperSelect dataTypes
-    for (const district of districts) {
-      communeArr.push({_id: district?.idcommune, value: district?.libelle});
-    }
-    for (const city of cities) {
-      cityArr.push({_id: city?.idville, value: city?.libelle});
-    }
-
-    for (const pays of countries) {
-      countryArr.push({_id: pays?.idpays, value: pays?.nom_fr_fr});
-    }
-
-    // update state
-    setCommune({...commune, list: [...communeArr]});
-    setTown({...town, list: [...cityArr]});
-    setCountry({...country, list: [...countryArr]});
-  }, [commune, country, state?.token, state?.user?.identreprises, token, town]);
-
-  useEffect(() => {
-    retrieveDataFromServer();
-  }, []);
-
   const getDate = () => {
     const date = new Date().toLocaleDateString('fr');
     const splitDate = date?.split('/').reverse().join('-');
@@ -101,14 +41,11 @@ const AddMember = () => {
     const data = {
       ...rest,
       date_naissance: annee ? `${jour}-${mois}-${annee}` : `${jour}-${mois}`,
-      idpays: country?.selectedList[0]?._id,
-      idcommune: commune?.selectedList[0]?._id,
-      idville: town?.selectedList[0]?._id,
       dateenregistre: getDate(),
       identreprises: state?.user?.identreprises,
       contact: formattedValue,
     };
-    const req = await addMember(data, token || state?.token);
+    const req: any = await addMember(data, token || state?.token);
     if (req?.status) {
       setLoading(false);
       Alert.alert(
@@ -182,39 +119,37 @@ const AddMember = () => {
               touched,
             }) => (
               <View style={styles.content}>
-                <View style={styles.row}>
-                  <View style={styles.inputWrap}>
-                    <TextInput
-                      mode="outlined"
-                      label="Nom"
-                      autoCapitalize="none"
-                      value={values.nom}
-                      onChangeText={handleChange('nom')}
-                      style={styles.inputView}
-                      onBlur={handleBlur('nom')}
-                    />
-                    {errors.nom && touched.nom && (
-                      <Text style={{color: theme.colors.error}}>
-                        {errors.nom}
-                      </Text>
-                    )}
-                  </View>
-                  <View style={styles.inputWrap}>
-                    <TextInput
-                      mode="outlined"
-                      label="Prénoms"
-                      autoCapitalize="none"
-                      value={values.prenoms}
-                      onChangeText={handleChange('prenoms')}
-                      style={styles.inputView}
-                      onBlur={handleBlur('prenoms')}
-                    />
-                    {errors.prenoms && touched.prenoms && (
-                      <Text style={{color: theme.colors.error}}>
-                        {errors.prenoms}
-                      </Text>
-                    )}
-                  </View>
+                <View>
+                  <TextInput
+                    mode="outlined"
+                    label="Nom"
+                    autoCapitalize="none"
+                    value={values.nom}
+                    onChangeText={handleChange('nom')}
+                    style={styles.inputView}
+                    onBlur={handleBlur('nom')}
+                  />
+                  {errors.nom && touched.nom && (
+                    <Text style={{color: theme.colors.error}}>
+                      {errors.nom}
+                    </Text>
+                  )}
+                </View>
+                <View>
+                  <TextInput
+                    mode="outlined"
+                    label="Prénoms"
+                    autoCapitalize="none"
+                    value={values.prenoms}
+                    onChangeText={handleChange('prenoms')}
+                    style={styles.inputView}
+                    onBlur={handleBlur('prenoms')}
+                  />
+                  {errors.prenoms && touched.prenoms && (
+                    <Text style={{color: theme.colors.error}}>
+                      {errors.prenoms}
+                    </Text>
+                  )}
                 </View>
                 <View style={styles.row}>
                   <View style={styles.inputWrap}>
@@ -254,7 +189,7 @@ const AddMember = () => {
                   <View style={styles.inputWrap}>
                     <TextInput
                       mode="outlined"
-                      label="Année (Facultatif)"
+                      label="Année"
                       autoCapitalize="none"
                       value={values.annee}
                       keyboardType="decimal-pad"
@@ -287,114 +222,6 @@ const AddMember = () => {
                     Entrez un contact valide suivi du code indicatif
                   </Text>
                 ) : null}
-                <TextInput
-                  mode="outlined"
-                  label="Autre contact (Facultatif)"
-                  keyboardType="phone-pad"
-                  placeholder="xxx xxx xxx"
-                  autoCapitalize="none"
-                  value={values.autre_contact}
-                  onChangeText={handleChange('autre_contact')}
-                  style={styles.inputView}
-                  onBlur={handleBlur('autre_contact')}
-                />
-                <TextInput
-                  mode="outlined"
-                  label="Email (Facultatif)"
-                  keyboardType="email-address"
-                  placeholder="Email"
-                  autoCapitalize="none"
-                  value={values.email}
-                  onChangeText={handleChange('email')}
-                  style={styles.inputView}
-                  onBlur={handleBlur('email')}
-                />
-                <PaperSelect
-                  label="Pays (Facultatif)"
-                  value={country.selectedList[0]?.value}
-                  onSelection={(value: any) => {
-                    setCountry({
-                      ...country,
-                      value: value.text,
-                      selectedList: value.selectedList,
-                      error: '',
-                    });
-                  }}
-                  checkboxLabelStyle={{color: theme.colors.text}}
-                  searchPlaceholder="Recherche"
-                  textInputStyle={styles.select}
-                  dialogTitle="Sélectionnez un pays"
-                  activeUnderlineColor="transparent"
-                  underlineColor="transparent"
-                  textInputMode="outlined"
-                  outlineColor={theme.colors.outline}
-                  activeOutlineColor={theme.colors.primary}
-                  hideSearchBox={false}
-                  multiEnable={false}
-                  arrayList={[...country.list]}
-                  selectedArrayList={[...country.selectedList]}
-                  errorText={country.error}
-                  checkboxColor={theme.colors.primary}
-                  modalCloseButtonText="Fermer"
-                  modalDoneButtonText="Choisir"
-                />
-                <PaperSelect
-                  label="Ville (Facultatif)"
-                  value={town.value}
-                  onSelection={(value: any) => {
-                    setTown({
-                      ...town,
-                      value: value.text,
-                      selectedList: value.selectedList,
-                      error: '',
-                    });
-                  }}
-                  checkboxLabelStyle={{color: theme.colors.text}}
-                  searchPlaceholder="Recherche"
-                  textInputStyle={styles.select}
-                  activeUnderlineColor="transparent"
-                  underlineColor="transparent"
-                  textInputMode="outlined"
-                  outlineColor={theme.colors.outline}
-                  activeOutlineColor={theme.colors.primary}
-                  hideSearchBox={true}
-                  multiEnable={false}
-                  arrayList={[...town.list]}
-                  selectedArrayList={[...town.selectedList]}
-                  errorText={town.error}
-                  checkboxColor={theme.colors.primary}
-                  modalCloseButtonText="Fermer"
-                  modalDoneButtonText="Choisir"
-                />
-
-                <PaperSelect
-                  label="Commune (Facultatif)"
-                  value={commune.value}
-                  onSelection={(value: any) => {
-                    setCommune({
-                      ...commune,
-                      value: value.text,
-                      selectedList: value.selectedList,
-                      error: '',
-                    });
-                  }}
-                  checkboxLabelStyle={{color: theme.colors.text}}
-                  searchPlaceholder="Recherche"
-                  textInputStyle={styles.select}
-                  activeUnderlineColor="transparent"
-                  underlineColor="transparent"
-                  textInputMode="outlined"
-                  outlineColor={theme.colors.outline}
-                  activeOutlineColor={theme.colors.primary}
-                  hideSearchBox={true}
-                  multiEnable={false}
-                  arrayList={[...commune.list]}
-                  selectedArrayList={[...commune.selectedList]}
-                  errorText={commune.error}
-                  checkboxColor={theme.colors.primary}
-                  modalCloseButtonText="Fermer"
-                  modalDoneButtonText="Choisir"
-                />
                 <View>
                   <TextInput
                     mode="outlined"
@@ -434,6 +261,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.clouds,
+    paddingTop: 30,
   },
   keyboard: {
     flex: 1,

@@ -13,6 +13,7 @@ import theme from '../themes';
 import {openComposer} from 'react-native-email-link';
 import Loader from '../components/Loader';
 import {AuthContext} from '../context/AuthContext';
+import {getVersion} from 'react-native-device-info';
 
 const Settings = () => {
   const {dispatch} = useContext(AuthContext);
@@ -71,6 +72,10 @@ const Settings = () => {
             Côte d'Ivoire, Abidjan, Yopougon Ananeraie
           </Text>
           <Text variant="bodyLarge">Tel: +225 05 94 02 90 83</Text>
+
+          <Text variant="bodyMedium" style={styles.version}>
+            Soul Keeper - Version: {getVersion()}
+          </Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -106,6 +111,10 @@ const styles = StyleSheet.create({
   },
   companyName: {
     fontWeight: '900',
+  },
+  version: {
+    marginTop: 20,
+    fontWeight: '700',
   },
 });
 export default Settings;

@@ -421,6 +421,8 @@ PODS:
     - React-jsi (= 0.71.5)
     - React-logger (= 0.71.5)
     - React-perflogger (= 0.71.5)
+  - RNDeviceInfo (10.6.0):
+    - React-Core
   - RNGestureHandler (2.9.0):
     - React-Core
   - RNKeychain (8.1.1):
@@ -525,6 +527,7 @@ DEPENDENCIES:
   - React-RCTVibration (from `../node_modules/react-native/Libraries/Vibration`)
   - React-runtimeexecutor (from `../node_modules/react-native/ReactCommon/runtimeexecutor`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
+  - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNKeychain (from `../node_modules/react-native-keychain`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
@@ -622,6 +625,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/runtimeexecutor"
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
+  RNDeviceInfo:
+    :path: "../node_modules/react-native-device-info"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNKeychain:
@@ -686,6 +691,7 @@ SPEC CHECKSUMS:
   React-RCTVibration: f0f5ad6417803de42e022d99247a6b1ddaf46c13
   React-runtimeexecutor: 511f4301d85daf85abface9afb8d2df2d49f87d3
   ReactCommon: 4f43b72066f27bfe1f63838c61763f59e7112536
+  RNDeviceInfo: 475a4c447168d0ad4c807e48ef5e0963a0f4eb1b
   RNGestureHandler: 071d7a9ad81e8b83fe7663b303d132406a7d8f39
   RNKeychain: ff836453cba46938e0e9e4c22e43d43fa2c90333
   RNReanimated: f0dd6b881808e635ef0673f89642937d6c141314
@@ -698,4 +704,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: fe952205b37f8a7c4624532e261f3667a3e92cf0
 
-COCOAPODS: 1.12.0
+COCOAPODS: 1.12.1

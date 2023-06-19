@@ -34,7 +34,7 @@ const wait = (timeout: number) => {
   return new Promise(resolve => setTimeout(resolve, timeout));
 };
 
-const Pointage = ({route}) => {
+const Pointage = ({route}: any) => {
   const token = useRefreshToken();
   const {state} = useContext(AuthContext);
   const [password, setPassword] = useState('');
@@ -56,7 +56,7 @@ const Pointage = ({route}) => {
   const onRefresh = useCallback(async () => {
     try {
       setRefreshing(true);
-      const req = await getMembers(
+      const req: any = await getMembers(
         token || state?.token,
         state?.user?.identreprises,
       );
@@ -309,9 +309,6 @@ const Pointage = ({route}) => {
               tintColor={theme.colors.primary}
             />
           }
-          // onEndReachedThreshold={0.5}
-          // onEndReached={fetchMoreData}
-          // ListFooterComponent={<ListFooter loadMore={loadingMore} />}
         />
       </View>
       <Snackbar
